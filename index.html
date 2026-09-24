@@ -297,7 +297,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 
 /* chips */
 .chips{display:flex;flex-wrap:wrap;gap:12px}
-/* one scrolling row: the chip cut at the edge + arrows say "there is more" */
+/* one scrolling row: the chip cut at the edge says "there is more" */
 .chips--scroll{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain;scroll-behavior:smooth;cursor:grab;margin:-12px -12px -20px;padding:12px 12px 20px}
 .chips--scroll::-webkit-scrollbar{display:none}
 .chips--scroll.is-dragging{cursor:grabbing;scroll-behavior:auto}
@@ -578,15 +578,9 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
     </section>
 
     <section class="sec" id="categories" aria-labelledby="h-cats">
-      <div class="sec-head sec-head--nav">
-        <div class="sec-head-text">
-          <h2 class="sec-title" id="h-cats">Categories</h2>
-          <p class="sec-sub">Browse games by genre</p>
-        </div>
-        <div class="car-nav" data-for="cat-chips">
-          <button class="car-btn" type="button" data-dir="-1" aria-label="Previous categories"><span class="ic" data-ph="caret-left"></span></button>
-          <button class="car-btn" type="button" data-dir="1" aria-label="More categories"><span class="ic" data-ph="caret-right"></span></button>
-        </div>
+      <div class="sec-head">
+        <h2 class="sec-title" id="h-cats">Categories</h2>
+        <p class="sec-sub">Browse games by genre</p>
       </div>
       <div class="chips chips--scroll" id="cat-chips" role="group" aria-labelledby="h-cats"></div>
     </section>
@@ -1454,7 +1448,7 @@ document.addEventListener('pointerover',e=>{
 document.querySelectorAll('[data-ph]').forEach(el=>{el.innerHTML=ic(el.dataset.ph);});
 const chips=$('#cat-chips');
 chips.innerHTML=CATS.map(([name,icon],i)=>`<a class="chip" href="#${name.toLowerCase()}" style="--i:${i}"><span class="ic">${ic(icon)}</span>${name}</a>`).join('');
-dragScroll(chips);syncCar(chips);new ResizeObserver(()=>syncCar(chips)).observe(chips);
+dragScroll(chips);
 
 /* theme */
 const root=document.documentElement,mq=matchMedia('(prefers-color-scheme: dark)'),tbtn=$('#theme');
