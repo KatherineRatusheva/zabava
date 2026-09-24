@@ -207,7 +207,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .bento .tile.is-lg,.wrow .tile,.frow .tile{--hs:1.05}
 .tile::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(14,40,92,.95) 0%,color-mix(in srgb,var(--accent) 62%,transparent) 34%,color-mix(in srgb,var(--accent) 0%,transparent) 66%);opacity:0;pointer-events:none;transition:opacity var(--t-hover) var(--ease)}
 .tile::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px var(--tile-ring);pointer-events:none;z-index:3}
-.tile .cover{position:absolute;inset:0;width:100%;height:100%;display:block;transform-origin:50% 55%;transition:transform 320ms var(--ease),filter var(--t-hover) var(--ease)}
+.tile .cover{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;transform-origin:50% 55%;transition:transform 320ms var(--ease),filter var(--t-hover) var(--ease)}
 .tile:hover,.tile:focus-visible{transform:scale(var(--hs));z-index:5;transition-delay:70ms}
 .tile.has-logo::before{background:linear-gradient(to top,rgba(14,40,92,.97) 0%,rgba(34,84,168,.9) 38%,color-mix(in srgb,var(--accent) 55%,transparent) 62%,color-mix(in srgb,var(--accent) 0%,transparent) 88%)}
 .tile:hover .cover{transform:scale(1.03);filter:saturate(1.08) contrast(1.05)}
@@ -1316,7 +1316,10 @@ function stats(g){const r=rng(hash(g.id+'#stats')),plays=Math.round(Math.exp(Mat
 function info(g){const st=stats(g);return`<span class="info" aria-hidden="true"><span class="info-title">${esc(g.t)}</span><span class="meta"><span class="pill">${g.genre}</span><span class="m m-year">${st.year}</span><span class="m m-plays"><span class="ic">${ic('play')}</span>${fmtN(st.plays)}</span><span class="m m-likes"><span class="ic">${ic('thumbs-up')}</span>${fmtN(st.likes)}</span></span></span>`;}
 const DIM={c:[100,100],w:[170,100],w2:[206,100],f:[100,178]};
 const KEY=['stumble-rush','fruit-merge-dash'];
-function fcard(id,b){const g=GM[id],[W,H]=DIM.f;return`<a class="tile fcard is-loading${KEY.includes(id)?' is-key':''}" href="#play-${id}" aria-label="${esc(g.t)}" data-g="${id}" data-w="${W}" data-h="${H}">${SK}<span class="fmeta" aria-hidden="true"><span class="fthumb is-loading" data-g="${id}" data-w="100" data-h="100">${SK}</span><span class="ftxt"><b>${esc(g.t)}</b><span class="flikes"><span class="ic">${ic('thumbs-up')}</span>${fmtN(stats(g).likes)}</span></span></span>${info(g)}</a>`;}
+/* placeholder artwork until real game art lands: dealt in turn along a row, so neighbours never repeat */
+const ART=['racing','gems','puppy','castle','farm','jungle','space'];
+const art=(i,shape)=>`img/${shape}/${ART[i%ART.length]}.jpg`;
+function fcard(id,b,i=0){const g=GM[id],[W,H]=DIM.f;return`<a class="tile fcard is-loading${KEY.includes(id)?' is-key':''}" href="#play-${id}" aria-label="${esc(g.t)}" data-g="${id}" data-w="${W}" data-h="${H}" data-img="${art(i,'tall')}">${SK}<span class="fmeta" aria-hidden="true"><span class="fthumb is-loading" data-g="${id}" data-w="100" data-h="100">${SK}</span><span class="ftxt"><b>${esc(g.t)}</b><span class="flikes"><span class="ic">${ic('thumbs-up')}</span>${fmtN(stats(g).likes)}</span></span></span>${info(g)}</a>`;}
 function card(id,kind,b){const g=GM[id],[W,H]=DIM[kind];return`<a class="tile${kind==='w2'?' is-wide':''} is-loading${KEY.includes(id)?' is-key':''}" href="#play-${id}" aria-label="${esc(g.t)}" data-g="${id}" data-w="${W}" data-h="${H}">${SK}<span class="name">${esc(g.t)}</span>${info(g)}</a>`;}
 const take=(list,n,off=0)=>Array.from({length:n},(_,i)=>list[(off+i)%list.length]);
 function moreTile(ids,page,label){return`<div class="more">${ids.map(id=>`<a class="mini is-loading" href="#play-${id}" aria-label="${esc(GM[id].t)}" data-g="${id}" data-w="100" data-h="100">${SK}</a>`).join('')}<a class="more-btn" href="#${page}" aria-label="All ${esc(label)} games"><span class="ic">${ic('arrow-right')}</span></a></div>`;}
@@ -1339,7 +1342,7 @@ function pump(){if(pumping)return;pumping=true;
   next();}
 function drawCover(el){
   if(!el.classList.contains('is-loading'))return;
-  el.insertAdjacentHTML('afterbegin',cover(GM[el.dataset.g],+el.dataset.w,+el.dataset.h,el.dataset.l==='1'));
+  el.insertAdjacentHTML('afterbegin',el.dataset.img?`<img class="cover cover-img" src="${el.dataset.img}" alt="" decoding="async">`:cover(GM[el.dataset.g],+el.dataset.w,+el.dataset.h,el.dataset.l==='1'));
   el.querySelector('.sk')?.remove();el.classList.remove('is-loading');
 }
 function mount(el,html,cap=16){el.querySelectorAll('[data-g]').forEach(n=>loader.unobserve(n));el.innerHTML=html;[...el.children].forEach((n,i)=>n.style.setProperty('--i',Math.min(i,cap)));el.querySelectorAll('[data-g]').forEach(n=>queue.push(n));pump();}
@@ -1437,7 +1440,7 @@ let CC=8;
 function renderSections(cc,wc,fc){
   CC=cc;main.style.setProperty('--wc',wc);main.style.setProperty('--cc',cc);main.style.setProperty('--fc',fc);
   mount($('#trend-wide'),take(LISTS.trendWide,wc).map(id=>card(id,'w')).join(''));
-  const fr=$('#feat-row');mount(fr,LISTS.featured.map(([id,b])=>fcard(id,b)).join(''));fr.scrollLeft=0;syncFade(fr);
+  const fr=$('#feat-row');mount(fr,LISTS.featured.map(([id,b],i)=>fcard(id,b,i)).join(''));fr.scrollLeft=0;syncFade(fr);
   fr.querySelectorAll('[data-g]').forEach(n=>{loader.unobserve(n);queue.push(n);});pump(); /* short row: draw every cover up front so paging never shows skeletons */
   for(const g of GENRES){const r=document.getElementById('row-'+g.id);mount(r,twoRows(g.list,cc,g.id,g.t.toLowerCase()));}
   for(const id in GRIDS){const el=document.getElementById(id);el.dataset.page=0;mount(el,gridPage(id,cc));}
@@ -1448,12 +1451,9 @@ function renderSections(cc,wc,fc){
 /* rail: sliding active pill */
 const panel=$('.side-list'),pill=document.createElement('span');pill.className='rail-pill';pill.setAttribute('aria-hidden','true');panel.prepend(pill);
 function movePill(){const a=panel.querySelector('[aria-current="page"]');if(a)pill.style.transform=`translate(${a.offsetLeft}px,${a.offsetTop}px)`;}
-/* after picking an item the menu folds away and stays folded until the pointer is clear of the open panel
-   (past its full width, or out of the window) — leaving just the narrow rail is not enough to re-arm it */
+/* after picking an item the menu folds away and stays folded until the pointer leaves it */
 const side=$('.side');
-const openW=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--side-open'))||212;
-addEventListener('pointermove',e=>{if(side.classList.contains('is-closing')&&e.clientX>openW()+8)side.classList.remove('is-closing');},{passive:true});
-document.documentElement.addEventListener('pointerleave',()=>side.classList.remove('is-closing'));
+side.addEventListener('pointerleave',()=>side.classList.remove('is-closing'));
 side.addEventListener('focusout',e=>{if(!side.contains(e.relatedTarget)&&!side.matches(':hover'))side.classList.remove('is-closing');});
 panel.addEventListener('click',e=>{const a=e.target.closest('.rail-btn');if(!a)return;if(e.detail)a.blur();side.classList.add('is-closing');panel.querySelectorAll('.rail-btn').forEach(x=>x.removeAttribute('aria-current'));a.setAttribute('aria-current','page');movePill();
 });
