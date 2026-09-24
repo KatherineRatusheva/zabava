@@ -207,6 +207,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .bento .tile.is-lg,.wrow .tile,.frow .tile{--hs:1.05}
 .tile::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(14,40,92,.95) 0%,color-mix(in srgb,var(--accent) 62%,transparent) 34%,color-mix(in srgb,var(--accent) 0%,transparent) 66%);opacity:0;pointer-events:none;transition:opacity var(--t-hover) var(--ease)}
 .tile::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px var(--tile-ring);pointer-events:none;z-index:3}
+.cover-img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover}
 .tile .cover{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:cover;transform-origin:50% 55%;transition:transform 320ms var(--ease),filter var(--t-hover) var(--ease)}
 .tile:hover,.tile:focus-visible{transform:scale(var(--hs));z-index:5;transition-delay:70ms}
 .tile.has-logo::before{background:linear-gradient(to top,rgba(14,40,92,.97) 0%,rgba(34,84,168,.9) 38%,color-mix(in srgb,var(--accent) 55%,transparent) 62%,color-mix(in srgb,var(--accent) 0%,transparent) 88%)}
@@ -1316,9 +1317,12 @@ function stats(g){const r=rng(hash(g.id+'#stats')),plays=Math.round(Math.exp(Mat
 function info(g){const st=stats(g);return`<span class="info" aria-hidden="true"><span class="info-title">${esc(g.t)}</span><span class="meta"><span class="pill">${g.genre}</span><span class="m m-year">${st.year}</span><span class="m m-plays"><span class="ic">${ic('play')}</span>${fmtN(st.plays)}</span><span class="m m-likes"><span class="ic">${ic('thumbs-up')}</span>${fmtN(st.likes)}</span></span></span>`;}
 const DIM={c:[100,100],w:[170,100],w2:[206,100],f:[100,178]};
 const KEY=['stumble-rush','fruit-merge-dash'];
-/* placeholder artwork until real game art lands: dealt in turn along a row, so neighbours never repeat */
-const ART=['racing','gems','puppy','castle','farm','jungle','space'];
-const art=(i,shape)=>`img/${shape}/${ART[i%ART.length]}.jpg`;
+/* placeholder artwork until real game art lands: dealt in turn along each row, so neighbours never repeat */
+const ART={tall:['racing','gems','puppy','castle','farm','jungle','space'],
+  sq:['diver','racing','baker','gems','snowboard','puppy','dino','castle','wizard','farm','train','jungle','firefighter','space','pirate','dancer','doctor']};
+const art=(i,shape)=>`img/${shape}/${ART[shape][((i%ART[shape].length)+ART[shape].length)%ART[shape].length]}.jpg`;
+const artFor=(g,w,h)=>art(hash(g.id),h/w>1.3?'tall':'sq');
+const artImg=(g,w,h)=>`<img class="cover cover-img" src="${artFor(g,w,h)}" alt="" decoding="async">`;
 function fcard(id,b,i=0){const g=GM[id],[W,H]=DIM.f;return`<a class="tile fcard is-loading${KEY.includes(id)?' is-key':''}" href="#play-${id}" aria-label="${esc(g.t)}" data-g="${id}" data-w="${W}" data-h="${H}" data-img="${art(i,'tall')}">${SK}<span class="fmeta" aria-hidden="true"><span class="fthumb is-loading" data-g="${id}" data-w="100" data-h="100">${SK}</span><span class="ftxt"><b>${esc(g.t)}</b><span class="flikes"><span class="ic">${ic('thumbs-up')}</span>${fmtN(stats(g).likes)}</span></span></span>${info(g)}</a>`;}
 function card(id,kind,b){const g=GM[id],[W,H]=DIM[kind];return`<a class="tile${kind==='w2'?' is-wide':''} is-loading${KEY.includes(id)?' is-key':''}" href="#play-${id}" aria-label="${esc(g.t)}" data-g="${id}" data-w="${W}" data-h="${H}">${SK}<span class="name">${esc(g.t)}</span>${info(g)}</a>`;}
 const take=(list,n,off=0)=>Array.from({length:n},(_,i)=>list[(off+i)%list.length]);
@@ -1342,10 +1346,10 @@ function pump(){if(pumping)return;pumping=true;
   next();}
 function drawCover(el){
   if(!el.classList.contains('is-loading'))return;
-  el.insertAdjacentHTML('afterbegin',el.dataset.img?`<img class="cover cover-img" src="${el.dataset.img}" alt="" decoding="async">`:cover(GM[el.dataset.g],+el.dataset.w,+el.dataset.h,el.dataset.l==='1'));
+  el.insertAdjacentHTML('afterbegin',`<img class="cover cover-img" src="${el.dataset.img||artFor(GM[el.dataset.g],+el.dataset.w,+el.dataset.h)}" alt="" decoding="async">`);
   el.querySelector('.sk')?.remove();el.classList.remove('is-loading');
 }
-function mount(el,html,cap=16){el.querySelectorAll('[data-g]').forEach(n=>loader.unobserve(n));el.innerHTML=html;[...el.children].forEach((n,i)=>n.style.setProperty('--i',Math.min(i,cap)));el.querySelectorAll('[data-g]').forEach(n=>queue.push(n));pump();}
+function mount(el,html,cap=16){el.querySelectorAll('[data-g]').forEach(n=>loader.unobserve(n));el.innerHTML=html;{let k=hash(el.id||'x')%17;el.querySelectorAll('[data-g]:not([data-img])').forEach(n=>{const w=+n.dataset.w,h=+n.dataset.h;n.dataset.img=art(k++,h/w>1.3?'tall':'sq');});}[...el.children].forEach((n,i)=>n.style.setProperty('--i',Math.min(i,cap)));el.querySelectorAll('[data-g]').forEach(n=>queue.push(n));pump();}
 
 function pack(cols){
   const occ=[],out=[];
@@ -1512,7 +1516,7 @@ function closeSr(){sr.classList.remove('is-open');q.setAttribute('aria-expanded'
 function runSearch(){
   const v=q.value.trim().toLowerCase();if(!v){closeSr();return;}
   const hits=Object.values(GM).filter(g=>g.t.toLowerCase().includes(v)||g.genre.toLowerCase().includes(v)).slice(0,7);
-  sr.innerHTML=hits.length?hits.map((g,i)=>`<a class="sr-item" role="option" href="#play-${g.id}" style="--i:${i}"><span class="sr-thumb">${cover(g,100,100,false)}</span><span><b>${esc(g.t)}</b><small>${g.genre}</small></span></a>`).join(''):`<div class="sr-empty">No games match “${esc(q.value.trim())}”. Try a genre like Puzzle or Racing.</div>`;
+  sr.innerHTML=hits.length?hits.map((g,i)=>`<a class="sr-item" role="option" href="#play-${g.id}" style="--i:${i}"><span class="sr-thumb">${artImg(g,100,100)}</span><span><b>${esc(g.t)}</b><small>${g.genre}</small></span></a>`).join(''):`<div class="sr-empty">No games match “${esc(q.value.trim())}”. Try a genre like Puzzle or Racing.</div>`;
   sr.classList.add('is-open');q.setAttribute('aria-expanded','true');active=-1;
 }
 q.addEventListener('input',runSearch);
@@ -1615,15 +1619,15 @@ function renderGamePage(g){
     <div class="gp">
       <div class="gp-main">
         <div class="gp-frame" id="gp-frame">
-          <div class="gp-blur" aria-hidden="true">${cover(g,160,90,false)}</div>
+          <div class="gp-blur" aria-hidden="true">${artImg(g,100,100)}</div>
           <div class="gp-start">
-            <div class="gp-poster">${cover(g,100,100,true)}</div>
+            <div class="gp-poster">${artImg(g,100,100)}</div>
             <h1>${esc(g.t)}</h1>
             <button class="gp-play" type="button" id="gp-play"><span class="ic">${ic('play')}</span>Play now</button>
             <div class="gp-note"><span><span class="ic">${ic('lightning')}</span>Instant play</span><span><span class="ic">${ic('check-circle')}</span>No downloads</span><span><span class="ic">${ic('check-circle')}</span>Free</span></div>
           </div>
           <div class="gp-load" aria-live="polite"><div class="gp-bar"><i></i></div><span>Loading ${esc(g.t)}…</span></div>
-          <div class="gp-play-art" aria-hidden="true">${cover(g,160,90,true)}</div>
+          <div class="gp-play-art" aria-hidden="true">${artImg(g,100,100)}</div>
           <div class="gp-demo">Demo — the game runs here</div>
         </div>
         <div class="gp-bar-row">
