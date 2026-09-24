@@ -128,7 +128,10 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .topbar.is-stuck::after{opacity:1}
 .topbar::before{content:"";position:absolute;top:0;bottom:0;left:calc(-1 * (var(--side-w) + 10px));right:-18px;z-index:-1;background:var(--head-glass);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);opacity:0;transition:opacity var(--t-ui) var(--ease)}
 .topbar.is-stuck::before{opacity:1}
-.brand-word{grid-area:word;font-weight:800;font-size:25px;letter-spacing:-.035em;line-height:1;padding-bottom:2px}
+/* the logo lives in the header only: the mark sits above the menu rail, the word lines up with the content */
+.brand-word{grid-area:word;display:flex;align-items:center;gap:24px;margin-left:calc(14px - var(--side-w) - 10px);font-weight:800;font-size:25px;letter-spacing:-.035em;line-height:1;padding-bottom:2px}
+.brand-word .ic{width:32px;height:32px;flex:none}
+.brand-word .ic svg{fill:var(--ico)}
 
 .search{grid-area:search;position:relative;width:100%;max-width:640px;transition:max-width var(--t-ui) var(--ease)}
 .search:focus-within{max-width:720px}
@@ -170,13 +173,10 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .more-btn:hover::after{opacity:var(--more-h-on);filter:var(--more-h-f)}
 .more-btn:hover .ic{color:var(--more-h-ic)}
 
-.side{position:fixed;left:0;top:0;bottom:0;z-index:35;isolation:isolate;display:flex;flex-direction:column;width:var(--side-w);border-right:1px solid transparent;overflow:hidden;transition:width 320ms var(--ease),box-shadow 320ms var(--ease),border-color 320ms var(--ease)}
+.side{position:fixed;left:0;top:64px;bottom:0;z-index:35;isolation:isolate;display:flex;flex-direction:column;width:var(--side-w);border-right:1px solid transparent;overflow:hidden;transition:width 320ms var(--ease),box-shadow 320ms var(--ease),border-color 320ms var(--ease)}
 .side::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,var(--rail-top),var(--rail-bottom)),var(--panel-glass);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);opacity:0;transition:opacity 320ms var(--ease)}
-.side:hover,.side:focus-within{width:var(--side-open);border-right-color:var(--border);box-shadow:var(--shadow-float);transition-delay:90ms}
+.side:hover,.side:focus-within{width:var(--side-open);border-top-right-radius:var(--r-lg);border-right-color:var(--border);box-shadow:var(--shadow-float);transition-delay:90ms}
 .side:hover::before,.side:focus-within::before{opacity:1;transition-delay:90ms}
-.side-brand{display:flex;align-items:center;gap:12px;flex:none;height:64px;padding-left:14px;color:var(--accent);white-space:nowrap}
-.side-brand .ic{width:32px;height:32px}
-.side-word{font-size:23px;font-weight:800;letter-spacing:-.035em;color:var(--text)}
 .side-list{position:relative;flex:1;display:flex;flex-direction:column;gap:5px;padding:26px 10px 20px;overflow-x:hidden;overflow-y:auto;scrollbar-width:none}
 .side-list::-webkit-scrollbar{display:none}
 .side-h{position:relative;display:flex;align-items:center;flex:none;height:12px;margin:2px 0;padding:0 10px;font-size:11px;line-height:1;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text-3);white-space:nowrap}
@@ -199,7 +199,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 
 .main{grid-area:main;min-width:0;padding-top:34px;padding-bottom:8px}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.chip:focus-visible,.theme-btn:focus-visible,.more-btn:focus-visible,.rail-btn:focus-visible,.side-brand:focus-visible,.more .mini:focus-visible{outline:none;box-shadow:var(--focus-ring)}
+.chip:focus-visible,.theme-btn:focus-visible,.more-btn:focus-visible,.rail-btn:focus-visible,.brand-word:focus-visible,.more .mini:focus-visible{outline:none;box-shadow:var(--focus-ring)}
 .chip:focus-visible,.theme-btn:focus-visible,.more-btn:focus-visible{border-color:var(--accent)}
 
 /* ---------- tiles ---------- */
@@ -346,8 +346,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .foot a:hover{color:var(--accent)}
 
 /* one icon language: brand-blue gradient + soft glow */
-.side-brand .ic svg{fill:var(--ico)}
-.more-btn .ic,.theme-btn .ic,.side-brand .ic{transition:transform var(--t-hover) var(--ease),filter var(--t-hover) var(--ease)}
+.more-btn .ic,.theme-btn .ic{transition:transform var(--t-hover) var(--ease),filter var(--t-hover) var(--ease)}
 .more-btn:hover,.theme-btn:hover{color:var(--on-accent)}
 
 /* ===== motion variants: A = live today, B = brief as written, C = brief + our agreed rules ===== */
@@ -516,9 +515,10 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 @media (max-width:720px){
   .shell{padding-inline:24px;padding-top:8px}
   .topbar{grid-template-columns:auto 1fr auto;grid-template-areas:"word . theme" "search search search";column-gap:8px;row-gap:10px;height:auto;padding-block:10px 12px}
-  .brand-word{font-size:23px}
+  .brand-word{font-size:23px;margin-left:0;gap:10px}
+  .brand-word .ic{width:28px;height:28px}
   .theme-btn{width:38px;height:38px}
-  .side,.side:hover,.side:focus-within{top:auto;right:0;width:auto;height:auto;flex-direction:row;border-right:0;border-top:1px solid var(--border);box-shadow:none}
+  .side,.side:hover,.side:focus-within{top:auto;right:0;border-radius:0;width:auto;height:auto;flex-direction:row;border-right:0;border-top:1px solid var(--border);box-shadow:none}
   .side::before{opacity:1}
   .side-brand,.side-h,.rail-btn.cat,.rail-btn .lbl{display:none}
   .side-list{flex-direction:row;justify-content:space-around;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));overflow:visible}
@@ -545,7 +545,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 <svg class="ico-defs" aria-hidden="true" focusable="false"><defs><linearGradient id="ico-grad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--ico-h1)"/><stop offset="1" style="stop-color:var(--ico-h2)"/></linearGradient></defs></svg>
 <div class="shell">
   <header class="topbar" id="topbar">
-    <a class="brand-word" href="#">zabava</a>
+    <a class="brand-word" href="#"><span class="ic" data-ph="game-controller"></span>zabava</a>
     <div class="search" id="search">
       <label class="search-field">
         <span class="ic" data-ph="magnifying-glass"></span>
@@ -557,7 +557,6 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
   </header>
 
   <nav class="side" aria-label="Main">
-    <a class="side-brand" href="#" aria-label="Zabava home"><span class="ic" data-ph="game-controller"></span><span class="side-word">zabava</span></a>
     <div class="side-list">
       <a class="rail-btn" href="#" aria-current="page"><span class="ic" data-ph="house"></span><span class="lbl">Home</span></a>
       <a class="rail-btn" href="#trending"><span class="ic" data-ph="chart-bar"></span><span class="lbl">Trending</span></a>
