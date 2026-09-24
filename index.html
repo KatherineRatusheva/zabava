@@ -60,6 +60,11 @@
   --cph-pill:rgba(255,255,255,.18);
   --cph-pill-bd:rgba(255,255,255,.3);
   --more-ic:#FFFFFF;
+  --more-h-on:0;
+  --more-h-ic:var(--ico);
+  --more-h-bg:var(--surface-hover);
+  --more-h-bd:var(--accent-border);
+  --more-h-sh:var(--shadow-ctl);
   --sk-2:#F2F6FA;
   --gap:14px;
   --side-w:60px;
@@ -78,7 +83,7 @@
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#05080F;--bg-head:#05080F;--bg-top:#0A2546;--page-grad:radial-gradient(70% 55% at 15% 0%,rgba(24,96,255,.42),rgba(24,96,255,0) 70%),radial-gradient(50% 45% at 88% 4%,rgba(80,190,255,.26),rgba(80,190,255,0) 70%),radial-gradient(45% 40% at 55% 48%,rgba(60,70,220,.13),rgba(60,70,220,0) 70%),radial-gradient(80% 60% at 50% 115%,rgba(20,110,255,.30),rgba(20,110,255,0) 72%),linear-gradient(180deg,#060B18,#04060D);--surface:rgba(255,255,255,.045);--surface-hover:rgba(255,255,255,.08);--border:rgba(255,255,255,.085);--border-strong:rgba(255,255,255,.16);--head-glass:rgba(4,7,14,.58);--more-on:0;--more-ic:var(--ico);--cph-bg:linear-gradient(180deg,var(--rail-top),var(--rail-bottom)),var(--surface);--cph-bd:var(--border);--cph-sh:var(--shadow-ctl);--cph-fg:var(--text);--cph-sub:var(--text-2);--cph-ic:url(#ico-grad);--cph-meta-ic:var(--ico);--cph-pill:var(--surface);--cph-pill-bd:var(--border);--panel-glass:rgba(10,16,30,.78);--grain:.05;
+    --bg:#05080F;--bg-head:#05080F;--bg-top:#0A2546;--page-grad:radial-gradient(70% 55% at 15% 0%,rgba(24,96,255,.42),rgba(24,96,255,0) 70%),radial-gradient(50% 45% at 88% 4%,rgba(80,190,255,.26),rgba(80,190,255,0) 70%),radial-gradient(45% 40% at 55% 48%,rgba(60,70,220,.13),rgba(60,70,220,0) 70%),radial-gradient(80% 60% at 50% 115%,rgba(20,110,255,.30),rgba(20,110,255,0) 72%),linear-gradient(180deg,#060B18,#04060D);--surface:rgba(255,255,255,.045);--surface-hover:rgba(255,255,255,.08);--border:rgba(255,255,255,.085);--border-strong:rgba(255,255,255,.16);--head-glass:rgba(4,7,14,.58);--more-on:0;--more-ic:var(--ico);--more-h-on:1;--more-h-ic:var(--on-accent);--more-h-bg:var(--accent);--more-h-bd:var(--accent);--more-h-sh:var(--accent-shadow);--cph-bg:linear-gradient(180deg,var(--rail-top),var(--rail-bottom)),var(--surface);--cph-bd:var(--border);--cph-sh:var(--shadow-ctl);--cph-fg:var(--text);--cph-sub:var(--text-2);--cph-ic:url(#ico-grad);--cph-meta-ic:var(--ico);--cph-pill:var(--surface);--cph-pill-bd:var(--border);--panel-glass:rgba(10,16,30,.78);--grain:.05;
     --text:#F5F8FC;--text-2:#8296AD;--text-3:#5B6F87;--ico-plain:#AFBDD3;--accent:#5E9EFA;--accent-hover:#78AEFF;--accent-ring:rgba(94,158,250,.28);--accent-soft:rgba(94,158,250,.14);--rail-top:rgba(94,158,250,.22);--rail-bottom:rgba(94,158,250,.04);--accent-line:rgba(120,176,255,.55);--accent-shadow:0 8px 20px -10px rgba(94,158,250,.5);--accent-grad:linear-gradient(180deg,#4B8CF2,#72ACFC);
     --tile-bg:#0B213A;--tile-ring:rgba(150,190,240,.08);--sk-1:#0B213A;--sk-2:#14345A;--rim:rgba(255,255,255,.22);--gt-bg:linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.03));--gt-bd:rgba(255,255,255,.13);--gt-sh:inset 0 1px 0 rgba(255,255,255,.13),0 8px 18px -10px rgba(0,0,0,.6);--ico:#5E9EFA;--ico-h1:#FFFFFF;--ico-h2:#CFDFF7;
     --shadow-tile:0 2px 8px -3px rgba(0,0,0,.55);
@@ -92,7 +97,7 @@
   }
 }
 :root[data-theme="dark"]{
-  --bg:#05080F;--bg-head:#05080F;--bg-top:#0A2546;--page-grad:radial-gradient(70% 55% at 15% 0%,rgba(24,96,255,.42),rgba(24,96,255,0) 70%),radial-gradient(50% 45% at 88% 4%,rgba(80,190,255,.26),rgba(80,190,255,0) 70%),radial-gradient(45% 40% at 55% 48%,rgba(60,70,220,.13),rgba(60,70,220,0) 70%),radial-gradient(80% 60% at 50% 115%,rgba(20,110,255,.30),rgba(20,110,255,0) 72%),linear-gradient(180deg,#060B18,#04060D);--surface:rgba(255,255,255,.045);--surface-hover:rgba(255,255,255,.08);--border:rgba(255,255,255,.085);--border-strong:rgba(255,255,255,.16);--head-glass:rgba(4,7,14,.58);--more-on:0;--more-ic:var(--ico);--cph-bg:linear-gradient(180deg,var(--rail-top),var(--rail-bottom)),var(--surface);--cph-bd:var(--border);--cph-sh:var(--shadow-ctl);--cph-fg:var(--text);--cph-sub:var(--text-2);--cph-ic:url(#ico-grad);--cph-meta-ic:var(--ico);--cph-pill:var(--surface);--cph-pill-bd:var(--border);--panel-glass:rgba(10,16,30,.78);--grain:.05;
+  --bg:#05080F;--bg-head:#05080F;--bg-top:#0A2546;--page-grad:radial-gradient(70% 55% at 15% 0%,rgba(24,96,255,.42),rgba(24,96,255,0) 70%),radial-gradient(50% 45% at 88% 4%,rgba(80,190,255,.26),rgba(80,190,255,0) 70%),radial-gradient(45% 40% at 55% 48%,rgba(60,70,220,.13),rgba(60,70,220,0) 70%),radial-gradient(80% 60% at 50% 115%,rgba(20,110,255,.30),rgba(20,110,255,0) 72%),linear-gradient(180deg,#060B18,#04060D);--surface:rgba(255,255,255,.045);--surface-hover:rgba(255,255,255,.08);--border:rgba(255,255,255,.085);--border-strong:rgba(255,255,255,.16);--head-glass:rgba(4,7,14,.58);--more-on:0;--more-ic:var(--ico);--more-h-on:1;--more-h-ic:var(--on-accent);--more-h-bg:var(--accent);--more-h-bd:var(--accent);--more-h-sh:var(--accent-shadow);--cph-bg:linear-gradient(180deg,var(--rail-top),var(--rail-bottom)),var(--surface);--cph-bd:var(--border);--cph-sh:var(--shadow-ctl);--cph-fg:var(--text);--cph-sub:var(--text-2);--cph-ic:url(#ico-grad);--cph-meta-ic:var(--ico);--cph-pill:var(--surface);--cph-pill-bd:var(--border);--panel-glass:rgba(10,16,30,.78);--grain:.05;
   --text:#F5F8FC;--text-2:#8296AD;--text-3:#5B6F87;--ico-plain:#AFBDD3;--accent:#5E9EFA;--accent-hover:#78AEFF;--accent-ring:rgba(94,158,250,.28);--accent-soft:rgba(94,158,250,.14);--rail-top:rgba(94,158,250,.22);--rail-bottom:rgba(94,158,250,.04);--accent-line:rgba(120,176,255,.55);--accent-shadow:0 8px 20px -10px rgba(94,158,250,.5);--accent-grad:linear-gradient(180deg,#4B8CF2,#72ACFC);
   --tile-bg:#0B213A;--tile-ring:rgba(150,190,240,.08);--sk-1:#0B213A;--sk-2:#14345A;--rim:rgba(255,255,255,.22);--gt-bg:linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.03));--gt-bd:rgba(255,255,255,.13);--gt-sh:inset 0 1px 0 rgba(255,255,255,.13),0 8px 18px -10px rgba(0,0,0,.6);--ico:#5E9EFA;--ico-h1:#FFFFFF;--ico-h2:#CFDFF7;
   --shadow-tile:0 2px 8px -3px rgba(0,0,0,.55);
@@ -161,7 +166,9 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .theme-btn:hover::after,.more-btn:hover::after{opacity:1}
 .more-btn::after{opacity:var(--more-on)}
 .more-btn .ic{color:var(--more-ic)}
-.more-btn:hover .ic{color:var(--on-accent)}
+/* hover flips it: light goes from blue to a light tile with a blue arrow, dark from quiet to blue */
+.more-btn:hover::after{opacity:var(--more-h-on)}
+.more-btn:hover .ic{color:var(--more-h-ic)}
 
 .side{position:fixed;left:0;top:0;bottom:0;z-index:35;isolation:isolate;display:flex;flex-direction:column;width:var(--side-w);border-right:1px solid transparent;overflow:hidden;transition:width 320ms var(--ease),box-shadow 320ms var(--ease),border-color 320ms var(--ease)}
 .side::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,var(--rail-top),var(--rail-bottom)),var(--panel-glass);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);opacity:0;transition:opacity 320ms var(--ease)}
@@ -314,7 +321,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .more-btn{--d:1;position:relative;isolation:isolate;display:grid;place-items:center;width:100%;height:100%;padding:0;font:inherit;cursor:pointer;border-radius:var(--r-sm);background:var(--surface);border:1px solid var(--border);color:var(--ico-plain);box-shadow:var(--shadow-ctl);transition:background-color var(--t-hover) var(--ease),border-color var(--t-hover) var(--ease),color var(--t-hover) var(--ease),box-shadow var(--t-hover) var(--ease),transform var(--t-press) var(--ease)}
 .more-btn .ic svg{stroke:currentColor;stroke-width:12;stroke-linejoin:round;paint-order:stroke}
 .more-btn .ic{width:22px;height:22px;transition:transform var(--t-hover) var(--ease)}
-.more-btn:hover{background:var(--accent);border-color:var(--accent);box-shadow:var(--accent-shadow)}
+.more-btn:hover{background:var(--more-h-bg);border-color:var(--more-h-bd);box-shadow:var(--more-h-sh)}
 .more-btn:active{transform:scale(.92)}
 .more-btn.is-nudge .ic{animation:nudge 340ms var(--ease)}
 .more .mini{animation:none}
