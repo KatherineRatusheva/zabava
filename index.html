@@ -139,16 +139,14 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .theme-btn{grid-area:theme;position:relative;isolation:isolate;display:grid;place-items:center;width:42px;height:42px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow-ctl);cursor:pointer;color:var(--ico-plain);transition:background-color var(--t-hover) var(--ease),border-color var(--t-hover) var(--ease),color var(--t-hover) var(--ease),box-shadow var(--t-hover) var(--ease),transform var(--t-press) var(--ease)}
 .theme-btn:hover{background:var(--accent);border-color:var(--accent);box-shadow:var(--accent-shadow)}
 .theme-btn .ic,.car-btn .ic,.more-btn .ic{color:var(--ico)}
-.theme-btn:hover .ic,.car-btn:hover:not(:disabled) .ic{color:var(--on-accent)}
+.theme-btn:hover .ic,.more-btn:hover .ic,.car-btn:hover:not(:disabled) .ic{color:var(--on-accent)}
 .theme-btn .ic{width:20px;height:20px;transition:transform var(--t-ui) var(--ease)}
 .theme-btn:active{transform:scale(.92)}
 .theme-btn .ic.swap{animation:iconSwap 380ms var(--ease)}
 .theme-btn::before,.more-btn::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(180deg,var(--rail-top),var(--rail-bottom));transition:opacity var(--t-ui) var(--ease)}
-.theme-btn:hover::before{opacity:0}
-.more-btn::before{opacity:0}
-.more-btn:hover::before{opacity:1}
-.theme-btn::after{content:"";position:absolute;inset:-1px;z-index:-1;border-radius:inherit;background:var(--accent-grad);opacity:0;transition:opacity var(--t-hover) var(--ease)}
-.theme-btn:hover::after{opacity:1}
+.theme-btn:hover::before,.more-btn:hover::before{opacity:0}
+.theme-btn::after,.more-btn::after{content:"";position:absolute;inset:-1px;z-index:-1;border-radius:inherit;background:var(--accent-grad);opacity:0;transition:opacity var(--t-hover) var(--ease)}
+.theme-btn:hover::after,.more-btn:hover::after{opacity:1}
 
 .side{position:fixed;left:0;top:0;bottom:0;z-index:35;isolation:isolate;display:flex;flex-direction:column;width:var(--side-w);border-right:1px solid transparent;overflow:hidden;transition:width 320ms var(--ease),box-shadow 320ms var(--ease),border-color 320ms var(--ease)}
 .side::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,var(--rail-top),var(--rail-bottom)),var(--panel-glass);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);opacity:0;transition:opacity 320ms var(--ease)}
@@ -290,9 +288,9 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .more .mini{position:relative;overflow:hidden;border-radius:var(--r-sm);background:var(--tile-bg);box-shadow:var(--shadow-tile);transition:transform 360ms var(--ease),box-shadow 360ms var(--ease)}
 .more .mini:hover{transform:scale(1.1);box-shadow:var(--shadow-card-pop);z-index:2;transition-delay:70ms}
 .more .mini svg{position:absolute;inset:0;width:100%;height:100%;transition:opacity 320ms var(--ease)}
-.more-btn{--d:1;position:relative;isolation:isolate;display:grid;place-items:center;width:100%;height:100%;padding:0;font:inherit;cursor:pointer;border-radius:var(--r-sm);background:transparent;border:1px solid transparent;color:var(--ico);box-shadow:none;transition:background-color var(--t-hover) var(--ease),border-color var(--t-hover) var(--ease),color var(--t-hover) var(--ease),box-shadow var(--t-hover) var(--ease),transform var(--t-press) var(--ease)}
-.more-btn .ic{width:34px;height:34px;transition:transform var(--t-hover) var(--ease)}
-.more-btn:hover{background:var(--surface);border-color:var(--border);box-shadow:var(--shadow-ctl)}
+.more-btn{--d:1;position:relative;isolation:isolate;display:grid;place-items:center;width:100%;height:100%;padding:0;font:inherit;cursor:pointer;border-radius:var(--r-sm);background:var(--surface);border:1px solid var(--border);color:var(--ico-plain);box-shadow:var(--shadow-ctl);transition:background-color var(--t-hover) var(--ease),border-color var(--t-hover) var(--ease),color var(--t-hover) var(--ease),box-shadow var(--t-hover) var(--ease),transform var(--t-press) var(--ease)}
+.more-btn .ic{width:18px;height:18px;transition:transform var(--t-hover) var(--ease)}
+.more-btn:hover{background:var(--accent);border-color:var(--accent);box-shadow:var(--accent-shadow)}
 .more-btn:active{transform:scale(.92)}
 .more-btn.is-nudge .ic{animation:nudge 340ms var(--ease)}
 .more .mini{animation:none}
@@ -321,7 +319,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 /* one icon language: brand-blue gradient + soft glow */
 .side-brand .ic svg{fill:var(--ico)}
 .more-btn .ic,.theme-btn .ic,.side-brand .ic{transition:transform var(--t-hover) var(--ease),filter var(--t-hover) var(--ease)}
-.theme-btn:hover{color:var(--on-accent)}
+.more-btn:hover,.theme-btn:hover{color:var(--on-accent)}
 
 /* ===== motion variants: A = live today, B = brief as written, C = brief + our agreed rules ===== */
 .tt-thumb{display:none}
