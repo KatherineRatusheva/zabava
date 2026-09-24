@@ -34,8 +34,6 @@
   --tile-ring:rgba(31,46,92,.06);
   --shadow-tile:0 1px 2px rgba(31,46,92,.06),0 3px 8px -3px rgba(31,46,92,.10);
   --shadow-tile-hover:0 14px 26px -12px rgba(31,46,92,.35);
-  --shadow-card-pop:0 24px 44px -16px rgba(7,50,120,.5);
-  --shadow-card-soft:0 14px 26px -14px rgba(7,50,120,.32);
   --shadow-ctl:inset 0 1px 0 rgba(255,255,255,.95),0 1px 2px rgba(31,46,92,.05),0 6px 16px -10px rgba(31,46,92,.12);
   --shadow-float:0 12px 30px -14px rgba(31,46,92,.24);
   --accent-border:rgba(61,134,242,.4);
@@ -89,7 +87,7 @@
     --tile-bg:#0B213A;--tile-ring:rgba(150,190,240,.08);--sk-1:#0B213A;--sk-2:#14345A;--rim:rgba(255,255,255,.22);--gt-bg:linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.03));--gt-bd:rgba(255,255,255,.13);--gt-sh:inset 0 1px 0 rgba(255,255,255,.13),0 8px 18px -10px rgba(0,0,0,.6);--ico:#5E9EFA;--ico-h1:#FFFFFF;--ico-h2:#CFDFF7;
     --shadow-tile:0 2px 8px -3px rgba(0,0,0,.55);
     --shadow-tile-hover:0 16px 30px -12px rgba(0,0,0,.8);
-    --shadow-card-pop:0 26px 48px -14px rgba(0,0,0,.85);--shadow-card-soft:0 14px 26px -14px rgba(0,0,0,.6);
+    
     --shadow-ctl:inset 0 1px 0 rgba(255,255,255,.06);
     --shadow-float:0 16px 34px -14px rgba(0,0,0,.7);
     --accent-border:rgba(120,176,255,.5);
@@ -103,7 +101,7 @@
   --tile-bg:#0B213A;--tile-ring:rgba(150,190,240,.08);--sk-1:#0B213A;--sk-2:#14345A;--rim:rgba(255,255,255,.22);--gt-bg:linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.03));--gt-bd:rgba(255,255,255,.13);--gt-sh:inset 0 1px 0 rgba(255,255,255,.13),0 8px 18px -10px rgba(0,0,0,.6);--ico:#5E9EFA;--ico-h1:#FFFFFF;--ico-h2:#CFDFF7;
   --shadow-tile:0 2px 8px -3px rgba(0,0,0,.55);
   --shadow-tile-hover:0 16px 30px -12px rgba(0,0,0,.8);
-  --shadow-card-pop:0 26px 48px -14px rgba(0,0,0,.85);--shadow-card-soft:0 14px 26px -14px rgba(0,0,0,.6);
+  
   --shadow-ctl:inset 0 1px 0 rgba(255,255,255,.06);
   --shadow-float:0 16px 34px -14px rgba(0,0,0,.7);
   --accent-border:rgba(120,176,255,.5);
@@ -210,12 +208,12 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .tile::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(to top,rgba(14,40,92,.95) 0%,color-mix(in srgb,var(--accent) 62%,transparent) 34%,color-mix(in srgb,var(--accent) 0%,transparent) 66%);opacity:0;pointer-events:none;transition:opacity var(--t-hover) var(--ease)}
 .tile::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px var(--tile-ring);pointer-events:none;z-index:3}
 .tile .cover{position:absolute;inset:0;width:100%;height:100%;display:block;transform-origin:50% 55%;transition:transform 320ms var(--ease),filter var(--t-hover) var(--ease)}
-.tile:hover,.tile:focus-visible{transform:scale(var(--hs));box-shadow:var(--shadow-card-pop);z-index:5;transition-delay:70ms}
+.tile:hover,.tile:focus-visible{transform:scale(var(--hs));z-index:5;transition-delay:70ms}
 .tile.has-logo::before{background:linear-gradient(to top,rgba(14,40,92,.97) 0%,rgba(34,84,168,.9) 38%,color-mix(in srgb,var(--accent) 55%,transparent) 62%,color-mix(in srgb,var(--accent) 0%,transparent) 88%)}
 .tile:hover .cover{transform:scale(1.03);filter:saturate(1.08) contrast(1.05)}
 .tile:hover::before,.tile:focus-visible::before{opacity:1}
 .tile:active{transform:scale(calc(var(--hs) - .02));transition-duration:var(--t-press);transition-delay:0s}
-.tile:focus-visible{outline:none;box-shadow:var(--focus-ring),var(--shadow-card-pop)}
+.tile:focus-visible{outline:none;box-shadow:var(--focus-ring)}
 .tile .name{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:22px 10px 8px;font-size:13px;font-weight:800;line-height:1.2;color:#fff;letter-spacing:-.005em;background:linear-gradient(to top,var(--scrim),rgba(5,14,32,0));text-shadow:0 1px 2px rgba(0,0,0,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:transform var(--t-hover) var(--ease),opacity var(--t-hover) var(--ease)}
 .tile:hover .name,.tile:focus-visible .name{opacity:0;transform:translateY(6px)}
 .cover text{font-family:"Lilita One","Arial Black",Impact,sans-serif}
@@ -302,9 +300,6 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .car-btn:disabled{opacity:.4;cursor:default}
 .car-btn:focus-visible{outline:none;box-shadow:var(--focus-ring);border-color:var(--accent)}
 .frow .tile{aspect-ratio:9/16;border-radius:var(--r-lg)}
-/* tall cards: a lower, softer lift so the shadow fades out inside the row instead of being cut */
-.frow .tile:hover,.frow .tile:focus-visible{box-shadow:var(--shadow-card-soft)}
-.frow .tile:focus-visible{box-shadow:var(--focus-ring),var(--shadow-card-soft)}
 /* featured: phone-format card, meta always on — thumb, title, likes */
 .fcard .info{display:none}
 .fmeta{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;align-items:center;gap:10px;padding:56px 12px 12px;background:linear-gradient(to top,rgba(4,10,24,.86),rgba(4,10,24,.5) 50%,rgba(4,10,24,0));color:#fff;pointer-events:none}
@@ -318,7 +313,7 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 
 .more{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:6px;aspect-ratio:1/1}
 .more .mini{position:relative;overflow:hidden;border-radius:var(--r-sm);background:var(--tile-bg);box-shadow:var(--shadow-tile);transition:transform 360ms var(--ease),box-shadow 360ms var(--ease)}
-.more .mini:hover{transform:scale(1.1);box-shadow:var(--shadow-card-pop);z-index:2;transition-delay:70ms}
+.more .mini:hover{transform:scale(1.1);z-index:2;transition-delay:70ms}
 .more .mini svg{position:absolute;inset:0;width:100%;height:100%;transition:opacity 320ms var(--ease)}
 .more-btn{--d:1;position:relative;isolation:isolate;display:grid;place-items:center;width:100%;height:100%;padding:0;font:inherit;cursor:pointer;border-radius:var(--r-sm);background:var(--surface);border:1px solid var(--border);color:var(--ico-plain);box-shadow:var(--shadow-ctl);transition:background-color var(--t-hover) var(--ease),border-color var(--t-hover) var(--ease),color var(--t-hover) var(--ease),box-shadow var(--t-hover) var(--ease),transform var(--t-press) var(--ease)}
 .more-btn .ic svg{stroke:currentColor;stroke-width:12;stroke-linejoin:round;paint-order:stroke}
