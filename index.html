@@ -297,6 +297,11 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 
 /* chips */
 .chips{display:flex;flex-wrap:wrap;gap:12px}
+/* one scrolling row: the chip cut at the edge + arrows say "there is more" */
+.chips--scroll{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain;scroll-behavior:smooth;cursor:grab;margin:-12px -12px -20px;padding:12px 12px 20px}
+.chips--scroll::-webkit-scrollbar{display:none}
+.chips--scroll.is-dragging{cursor:grabbing;scroll-behavior:auto}
+.chips--scroll.is-dragging .chip{pointer-events:none}
 .chip{display:flex;align-items:center;justify-content:center;flex:none;gap:10px;height:50px;padding:0 22px 0 18px;border-radius:var(--r-pill);border:1px solid var(--border);background:var(--surface);box-shadow:var(--shadow-ctl);font-size:15px;font-weight:700;color:var(--text);cursor:pointer;white-space:nowrap;transition:background-color var(--t-hover) var(--ease),border-color var(--t-hover) var(--ease),color var(--t-hover) var(--ease),box-shadow var(--t-hover) var(--ease),transform var(--t-press) var(--ease)}
 .chip .ic{width:30px;height:30px}
 .chip[aria-pressed="true"] .ic svg{fill:#fff}
@@ -573,11 +578,17 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
     </section>
 
     <section class="sec" id="categories" aria-labelledby="h-cats">
-      <div class="sec-head">
-        <h2 class="sec-title" id="h-cats">Categories</h2>
-        <p class="sec-sub">Browse games by genre</p>
+      <div class="sec-head sec-head--nav">
+        <div class="sec-head-text">
+          <h2 class="sec-title" id="h-cats">Categories</h2>
+          <p class="sec-sub">Browse games by genre</p>
+        </div>
+        <div class="car-nav" data-for="cat-chips">
+          <button class="car-btn" type="button" data-dir="-1" aria-label="Previous categories"><span class="ic" data-ph="caret-left"></span></button>
+          <button class="car-btn" type="button" data-dir="1" aria-label="More categories"><span class="ic" data-ph="caret-right"></span></button>
+        </div>
       </div>
-      <div class="chips" id="cat-chips" role="group" aria-labelledby="h-cats"></div>
+      <div class="chips chips--scroll" id="cat-chips" role="group" aria-labelledby="h-cats"></div>
     </section>
 
     <div id="genre-blocks"></div>
@@ -1381,7 +1392,7 @@ function dragScroll(tr){
   let x0=0,s0=0,moved=false,id=null;
   tr.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0)return;x0=e.clientX;s0=tr.scrollLeft;moved=false;id=e.pointerId;});
   tr.addEventListener('pointermove',e=>{if(id!==e.pointerId)return;const dx=e.clientX-x0;if(!moved&&Math.abs(dx)>5){moved=true;tr.classList.add('is-dragging');tr.setPointerCapture(id);}if(moved)tr.scrollLeft=s0-dx;});
-  const end=e=>{if(id!==e.pointerId)return;id=null;if(moved){tr.classList.remove('is-dragging');const w=tr.querySelector('.tile')?.getBoundingClientRect().width||1,g=parseFloat(getComputedStyle(tr).columnGap)||0;tr.scrollTo({left:Math.round(tr.scrollLeft/(w+g))*(w+g),behavior:'smooth'});}};
+  const end=e=>{if(id!==e.pointerId)return;id=null;if(moved){tr.classList.remove('is-dragging');const t=tr.querySelector('.tile');if(t){const w=t.getBoundingClientRect().width,g=parseFloat(getComputedStyle(tr).columnGap)||0;tr.scrollTo({left:Math.round(tr.scrollLeft/(w+g))*(w+g),behavior:'smooth'});}}};
   tr.addEventListener('pointerup',end);tr.addEventListener('pointercancel',end);
   tr.addEventListener('click',e=>{if(moved){e.preventDefault();e.stopPropagation();moved=false;}},true);
   tr.addEventListener('dragstart',e=>e.preventDefault());
@@ -1443,6 +1454,7 @@ document.addEventListener('pointerover',e=>{
 document.querySelectorAll('[data-ph]').forEach(el=>{el.innerHTML=ic(el.dataset.ph);});
 const chips=$('#cat-chips');
 chips.innerHTML=CATS.map(([name,icon],i)=>`<a class="chip" href="#${name.toLowerCase()}" style="--i:${i}"><span class="ic">${ic(icon)}</span>${name}</a>`).join('');
+dragScroll(chips);syncCar(chips);new ResizeObserver(()=>syncCar(chips)).observe(chips);
 
 /* theme */
 const root=document.documentElement,mq=matchMedia('(prefers-color-scheme: dark)'),tbtn=$('#theme');
