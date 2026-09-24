@@ -245,8 +245,11 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .wrow .tile .name{font-size:15.5px;padding:28px 12px 10px}
 
 /* rows */
-.cgrid{display:grid;grid-template-columns:repeat(var(--cc,8),minmax(0,1fr));gap:var(--gap)}
+.cgrid{display:grid;grid-template-columns:repeat(var(--cc,8),minmax(0,1fr));gap:var(--gap);container-type:inline-size}
 .cgrid .tile{aspect-ratio:1/1}
+/* top row of a two-row block: wide cards, each two cells across and one cell tall */
+.cgrid .tile.is-wide{--hs:1.05;grid-column:span 2;aspect-ratio:auto;height:calc((100cqw - (var(--cc,8) - 1) * var(--gap)) / var(--cc,8))}
+.cgrid .tile.is-wide .name{font-size:15.5px;padding:28px 12px 10px}
 .cgrid.is-leaving>:not(.more){animation:pageOut 200ms var(--ease) forwards;animation-delay:calc(var(--i,0)*6ms)}
 .cgrid.is-entering>:not(.more){animation:pageIn 380ms var(--ease) backwards;animation-delay:calc(var(--i,0)*16ms)}
 .frow{display:grid;grid-auto-flow:column;grid-auto-columns:calc((100% - (var(--fc,6) - .5) * var(--gap)) / (var(--fc,6) - .5));gap:var(--gap);overflow-x:auto;cursor:grab;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-behavior:smooth;scroll-padding-inline:12px;scrollbar-width:none;margin:-12px -12px -28px;padding:12px 12px 28px}
@@ -1283,15 +1286,19 @@ const SK='<span class="sk" aria-hidden="true"></span>';
 const fmtN=n=>n>=1e6?(n/1e6).toFixed(n<1e7?1:0).replace(/\.0$/,'')+'M':n>=1e3?(n/1e3).toFixed(n<1e4?1:0).replace(/\.0$/,'')+'K':String(n);
 function stats(g){const r=rng(hash(g.id+'#stats')),plays=Math.round(Math.exp(Math.log(8e4)+r()*(Math.log(6e7)-Math.log(8e4))));return{year:2016+Math.floor(r()*10),plays,likes:Math.round(plays*(.004+r()*.02))};}
 function info(g){const st=stats(g);return`<span class="info" aria-hidden="true"><span class="info-title">${esc(g.t)}</span><span class="meta"><span class="pill">${g.genre}</span><span class="m m-year">${st.year}</span><span class="m m-plays"><span class="ic">${ic('play')}</span>${fmtN(st.plays)}</span><span class="m m-likes"><span class="ic">${ic('thumbs-up')}</span>${fmtN(st.likes)}</span></span></span>`;}
-const DIM={c:[100,100],w:[170,100],f:[100,178]};
+const DIM={c:[100,100],w:[170,100],w2:[206,100],f:[100,178]};
 const KEY=['stumble-rush','fruit-merge-dash'];
 function fcard(id,b){const g=GM[id],[W,H]=DIM.f;return`<a class="tile fcard is-loading${KEY.includes(id)?' is-key':''}" href="#play-${id}" aria-label="${esc(g.t)}" data-g="${id}" data-w="${W}" data-h="${H}">${SK}<span class="fmeta" aria-hidden="true"><span class="fthumb is-loading" data-g="${id}" data-w="100" data-h="100">${SK}</span><span class="ftxt"><b>${esc(g.t)}</b><span class="flikes"><span class="ic">${ic('thumbs-up')}</span>${fmtN(stats(g).likes)}</span></span></span>${info(g)}</a>`;}
-function card(id,kind,b){const g=GM[id],[W,H]=DIM[kind];return`<a class="tile is-loading${KEY.includes(id)?' is-key':''}" href="#play-${id}" aria-label="${esc(g.t)}" data-g="${id}" data-w="${W}" data-h="${H}">${SK}<span class="name">${esc(g.t)}</span>${info(g)}</a>`;}
+function card(id,kind,b){const g=GM[id],[W,H]=DIM[kind];return`<a class="tile${kind==='w2'?' is-wide':''} is-loading${KEY.includes(id)?' is-key':''}" href="#play-${id}" aria-label="${esc(g.t)}" data-g="${id}" data-w="${W}" data-h="${H}">${SK}<span class="name">${esc(g.t)}</span>${info(g)}</a>`;}
 const take=(list,n,off=0)=>Array.from({length:n},(_,i)=>list[(off+i)%list.length]);
 function moreTile(ids,page,label){return`<div class="more">${ids.map(id=>`<a class="mini is-loading" href="#play-${id}" aria-label="${esc(GM[id].t)}" data-g="${id}" data-w="100" data-h="100">${SK}</a>`).join('')}<a class="more-btn" href="#${page}" aria-label="All ${esc(label)} games"><span class="ic">${ic('caret-right')}</span></a></div>`;}
 /* a page of compact cards; the last cell previews the next page and pages forward */
 const GRIDS={'trend-grid':{list:LISTS.trend,rows:2,page:'trending-all',label:'trending'},'most-grid':{list:LISTS.most,rows:2,page:'most-played',label:'most played'}};
-function gridPage(id,cc){const{list,rows,page,label}=GRIDS[id],n=rows*cc-1;return take(list,n).map(x=>card(x,'c')).join('')+moreTile(take(list,3,n),page,label);}
+/* two rows: half as many wide cards on top, square cards + the "more" tile below */
+function twoRows(list,cc,page,label){
+  if(cc<4){const n=2*cc-1;return take(list,n).map(x=>card(x,'c')).join('')+moreTile(take(list,3,n),page,label);}
+  const w=cc/2,n=cc-1;return take(list,w).map(x=>card(x,'w2')).join('')+take(list,n,w).map(x=>card(x,'c')).join('')+moreTile(take(list,3,w+n),page,label);}
+function gridPage(id,cc){const{list,page,label}=GRIDS[id];return twoRows(list,cc,page,label);}
 
 /* covers load lazily: skeleton first, artwork drawn when the card nears the viewport */
 const queue=[];let pumping=false;
@@ -1404,7 +1411,7 @@ function renderSections(cc,wc,fc){
   mount($('#trend-wide'),take(LISTS.trendWide,wc).map(id=>card(id,'w')).join(''));
   const fr=$('#feat-row');mount(fr,LISTS.featured.map(([id,b])=>fcard(id,b)).join(''));fr.scrollLeft=0;syncFade(fr);
   fr.querySelectorAll('[data-g]').forEach(n=>{loader.unobserve(n);queue.push(n);});pump(); /* short row: draw every cover up front so paging never shows skeletons */
-  for(const g of GENRES){const r=document.getElementById('row-'+g.id);const n=2*cc-1;mount(r,take(g.list,n).map(id=>card(id,'c')).join('')+moreTile(take(g.list,3,n),g.id,g.t.toLowerCase()));}
+  for(const g of GENRES){const r=document.getElementById('row-'+g.id);mount(r,twoRows(g.list,cc,g.id,g.t.toLowerCase()));}
   for(const id in GRIDS){const el=document.getElementById(id);el.dataset.page=0;mount(el,gridPage(id,cc));}
 }
 
