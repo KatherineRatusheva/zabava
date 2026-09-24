@@ -214,12 +214,6 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 @container (max-width:230px){.meta .m-year,.meta .m-plays{display:none}}
 @container (max-width:120px){.meta .pill{display:none}}
 
-/* badges */
-.badge{position:absolute;top:8px;left:8px;z-index:2;display:inline-flex;align-items:center;gap:3px;height:20px;padding:0 7px;border-radius:var(--r-xs);overflow:hidden;color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;box-shadow:0 1px 3px rgba(0,0,0,.25);transform-origin:left center;transition:transform var(--t-hover) var(--ease)}
-.badge .ic{width:12px;height:12px}
-.badge--hot{background:linear-gradient(180deg,#F2342A,#FF6A5F)}
-.badge--new{background:linear-gradient(180deg,#0FA553,#2DCB78)}
-.badge--top{background:linear-gradient(180deg,#6043EC,#8A70FF)}
 
 
 /* bento */
@@ -289,7 +283,6 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 .ftxt b{font-size:14px;font-weight:800;line-height:1.2;letter-spacing:-.005em;text-shadow:0 1px 2px rgba(0,0,0,.35);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .flikes{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:700;color:rgba(255,255,255,.92)}
 .flikes .ic{width:15px;height:15px;color:#fff}
-.frow .badge{top:10px;left:10px}
 
 .more{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:6px;aspect-ratio:1/1}
 .more .mini{position:relative;overflow:hidden;border-radius:var(--r-sm);background:var(--tile-bg);box-shadow:var(--shadow-tile);transition:transform 360ms var(--ease),box-shadow 360ms var(--ease)}
@@ -342,7 +335,6 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 :root[data-motion="b"] .tile:hover{transform:translateY(var(--lift)) scale(var(--hs));box-shadow:var(--shadow-tile-hover);transition-delay:0s}
 :root[data-motion="b"] .tile:focus-visible{transform:translateY(var(--lift)) scale(var(--hs))}
 :root[data-motion="b"] .tile::before,:root[data-motion="b"] .tile.has-logo::before{background:linear-gradient(to top,rgba(4,12,28,.82) 0%,rgba(4,12,28,.35) 40%,rgba(4,12,28,0) 70%)}
-:root[data-motion="b"] .tile.is-key .badge--hot{animation:hotPulse 4.5s var(--ease) 1.5s infinite}
 :root[data-motion="b"] .rail-btn:hover .ic{transform:translateY(-1px) scale(1.08)}
 :root[data-motion="b"] .chip:hover{transform:translateY(-2px)}
 :root:not([data-motion="a"]) .chip .ic{transition:transform var(--t-hover) var(--ease)}
@@ -357,11 +349,9 @@ body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opa
 :root[data-motion="b"] .tt-thumb{display:grid;place-items:center;width:32px;height:32px;border-radius:var(--r-sm);background:var(--accent);color:var(--on-accent);box-shadow:var(--accent-shadow);transition:transform 360ms var(--ease)}
 :root[data-motion="b"][data-eff="dark"] .tt-thumb{transform:translateX(24px)}
 @keyframes tileUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-@keyframes badgeIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
 @keyframes headUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes slideOut{to{opacity:0;transform:translateX(calc(var(--slide,600px) * -1))}}
 @keyframes slideIn{from{opacity:0;transform:translateX(calc(var(--slide,600px) * .35))}to{opacity:1;transform:none}}
-@keyframes hotPulse{0%,86%,100%{transform:none}93%{transform:scale(1.03)}}
 
 /* category pages */
 .main.is-cat>:not(#cat-page):not(.foot){display:none}
@@ -1283,16 +1273,14 @@ if(!document.documentElement.dataset.motion)document.documentElement.dataset.mot
 const $=s=>document.querySelector(s);
 const main=$('#main'),bento=$('#bento');
 const rm=matchMedia('(prefers-reduced-motion: reduce)'),fine=matchMedia('(hover: hover) and (pointer: fine)');
-const BADGE={hot:['Hot','fire'],new:['New','sparkle'],top:['Top','crown']};
-const badge=b=>b?`<span class="badge badge--${b}"><span class="ic">${ic(BADGE[b][1])}</span>${BADGE[b][0]}</span>`:'';
 const SK='<span class="sk" aria-hidden="true"></span>';
 const fmtN=n=>n>=1e6?(n/1e6).toFixed(n<1e7?1:0).replace(/\.0$/,'')+'M':n>=1e3?(n/1e3).toFixed(n<1e4?1:0).replace(/\.0$/,'')+'K':String(n);
 function stats(g){const r=rng(hash(g.id+'#stats')),plays=Math.round(Math.exp(Math.log(8e4)+r()*(Math.log(6e7)-Math.log(8e4))));return{year:2016+Math.floor(r()*10),plays,likes:Math.round(plays*(.004+r()*.02))};}
 function info(g){const st=stats(g);return`<span class="info" aria-hidden="true"><span class="info-title">${esc(g.t)}</span><span class="meta"><span class="pill">${g.genre}</span><span class="m m-year">${st.year}</span><span class="m m-plays"><span class="ic">${ic('play')}</span>${fmtN(st.plays)}</span><span class="m m-likes"><span class="ic">${ic('thumbs-up')}</span>${fmtN(st.likes)}</span></span></span>`;}
 const DIM={c:[100,100],w:[170,100],f:[100,178]};
 const KEY=['stumble-rush','fruit-merge-dash'];
-function fcard(id,b){const g=GM[id],[W,H]=DIM.f;return`<a class="tile fcard is-loading${KEY.includes(id)?' is-key':''}" href="#play-${id}" aria-label="${esc(g.t)}" data-g="${id}" data-w="${W}" data-h="${H}">${SK}${badge(b)}<span class="fmeta" aria-hidden="true"><span class="fthumb is-loading" data-g="${id}" data-w="100" data-h="100">${SK}</span><span class="ftxt"><b>${esc(g.t)}</b><span class="flikes"><span class="ic">${ic('thumbs-up')}</span>${fmtN(stats(g).likes)}</span></span></span>${info(g)}</a>`;}
-function card(id,kind,b){const g=GM[id],[W,H]=DIM[kind];return`<a class="tile is-loading${KEY.includes(id)?' is-key':''}" href="#play-${id}" aria-label="${esc(g.t)}" data-g="${id}" data-w="${W}" data-h="${H}">${SK}${badge(b)}<span class="name">${esc(g.t)}</span>${info(g)}</a>`;}
+function fcard(id,b){const g=GM[id],[W,H]=DIM.f;return`<a class="tile fcard is-loading${KEY.includes(id)?' is-key':''}" href="#play-${id}" aria-label="${esc(g.t)}" data-g="${id}" data-w="${W}" data-h="${H}">${SK}<span class="fmeta" aria-hidden="true"><span class="fthumb is-loading" data-g="${id}" data-w="100" data-h="100">${SK}</span><span class="ftxt"><b>${esc(g.t)}</b><span class="flikes"><span class="ic">${ic('thumbs-up')}</span>${fmtN(stats(g).likes)}</span></span></span>${info(g)}</a>`;}
+function card(id,kind,b){const g=GM[id],[W,H]=DIM[kind];return`<a class="tile is-loading${KEY.includes(id)?' is-key':''}" href="#play-${id}" aria-label="${esc(g.t)}" data-g="${id}" data-w="${W}" data-h="${H}">${SK}<span class="name">${esc(g.t)}</span>${info(g)}</a>`;}
 const take=(list,n,off=0)=>Array.from({length:n},(_,i)=>list[(off+i)%list.length]);
 function moreTile(ids,page,label){return`<div class="more">${ids.map(id=>`<a class="mini is-loading" href="#play-${id}" aria-label="${esc(GM[id].t)}" data-g="${id}" data-w="100" data-h="100">${SK}</a>`).join('')}<a class="more-btn" href="#${page}" aria-label="All ${esc(label)} games"><span class="ic">${ic('caret-right')}</span></a></div>`;}
 /* a page of compact cards; the last cell previews the next page and pages forward */
@@ -1368,12 +1356,12 @@ function renderMosaic(intro){
   bento.classList.add('is-mosaic');
   const pct=(v,t)=>+(v/t*100).toFixed(4)+'%';
   mount(bento,MOSAIC.map(([id,x,y,w,h])=>{const g=GM[id],lg=w*h>15000,hasLogo=!!g.logo;
-    return`<a class="tile is-loading${lg?' is-lg':''}${hasLogo?' has-logo':''}${KEY.includes(g.id)?' is-key':''}" href="#play-${g.id}" style="left:${pct(x,MOSAIC_W)};top:${pct(y,MOSAIC_H)};width:${pct(w,MOSAIC_W)};height:${pct(h,MOSAIC_H)}" aria-label="${esc(g.t)}" data-g="${g.id}" data-w="${w}" data-h="${h}" data-l="1">${SK}${badge(g.b)}<span class="name">${esc(g.t)}</span>${info(g)}</a>`;}).join(''),30);
+    return`<a class="tile is-loading${lg?' is-lg':''}${hasLogo?' has-logo':''}${KEY.includes(g.id)?' is-key':''}" href="#play-${g.id}" style="left:${pct(x,MOSAIC_W)};top:${pct(y,MOSAIC_H)};width:${pct(w,MOSAIC_W)};height:${pct(h,MOSAIC_H)}" aria-label="${esc(g.t)}" data-g="${g.id}" data-w="${w}" data-h="${h}" data-l="1">${SK}<span class="name">${esc(g.t)}</span>${info(g)}</a>`;}).join(''),30);
 }
 function renderBento(cols,intro){
   bento.classList.remove('is-mosaic');
   mount(bento,pack(cols).map(p=>{const g=GM[p.id],W=p.w*100+(p.w-1)*10,H=p.h*100+(p.h-1)*10,lg=p.w*p.h>1,hasLogo=!!g.logo;
-    return`<a class="tile is-loading${lg?' is-lg':''}${hasLogo?' has-logo':''}${KEY.includes(g.id)?' is-key':''}" href="#play-${g.id}" style="grid-area:${p.r+1}/${p.c+1}/span ${p.h}/span ${p.w}" aria-label="${esc(g.t)}" data-g="${g.id}" data-w="${W}" data-h="${H}" data-l="1">${SK}${badge(g.b)}<span class="name">${esc(g.t)}</span>${info(g)}</a>`;}).join(''),30);
+    return`<a class="tile is-loading${lg?' is-lg':''}${hasLogo?' has-logo':''}${KEY.includes(g.id)?' is-key':''}" href="#play-${g.id}" style="grid-area:${p.r+1}/${p.c+1}/span ${p.h}/span ${p.w}" aria-label="${esc(g.t)}" data-g="${g.id}" data-w="${W}" data-h="${H}" data-l="1">${SK}<span class="name">${esc(g.t)}</span>${info(g)}</a>`;}).join(''),30);
 }
 /* genre blocks: one scrolling row per menu category */
 const GENRES=[{id:'action',t:'Action',ic:'fire',sub:'Fights, heroes and fast reflexes',list:['zombie-survival','heroes-arena','shadow-ninja','ninja-clash','stickman-battle','rope-hero','grand-city','monster-survivors','car-arena','mech-wars','knight-duel','robo-rumble','relic-run','stick-duel','galaxy-shooter','space-siege','zombie-shelter','archery']},{id:'puzzle',t:'Puzzle',ic:'puzzle-piece',sub:'Blocks, bubbles and brain teasers',list:['block-burst','bubble-pop','water-sort','color-match','block-burst-pro','brain-test','gem-rush','mahjong-pets','tile-connect','p2048','candy-blocks','jelly-connect','block-stack','gumball-sort','save-doge','bubble-kingdom','word-quest','solitaire']},{id:'arcade',t:'Arcade',ic:'game-controller',sub:'Quick runs and one-more-try fun',list:['stumble-rush','rail-rush','chick-hop','stick-jump','dino-run','stack-tower','sky-tower','metro-runner','relic-run','penguin-dash','blob-party','skate-kid','moto-rush','hoop-shot','rope-hero','ninja-clash','bubble-pop','super-bike']},{id:'racing',t:'Racing',ic:'flag-checkered',sub:'Cars, bikes and drifting',list:['nitro-street','city-drift','car-racer-x','drift-kings','moto-rush','super-bike','moto-madness','drift-riders','drive-master','car-stunt','parking-pro','bus-sim','car-arena','sky-ace','airplane-pilot','skate-kid','metro-runner','rail-rush']},{id:'sports',t:'Sports',ic:'soccer-ball',sub:'Football, basketball, pool and more',list:['eight-ball','goal-kick','soccer-stars','hoop-shot','basketball-stars','archery','pool-master','soccer-cup','skate-kid','stumble-rush','super-bike','drift-kings','moto-rush','car-stunt','stick-jump','chick-hop','stickman-battle','penguin-dash']},{id:'strategy',t:'Strategy',ic:'castle-turret',sub:'Build, plan and conquer',list:['kingdom-builder','goblin-camp','zombie-shelter','city-builder','island-tycoon','idle-island','heroes-arena','mech-wars','farm-merge','cooking-madness','burger-shop','knight-duel','robo-rumble','monster-survivors','bus-sim','parking-pro','brain-test','solitaire']},{id:'adventure',t:'Adventure',ic:'compass',sub:'Explore worlds and hidden treasures',list:['pixel-craft','pixel-adventure','relic-run','jungle-legend','rope-hero','hide-seek','hide-seek-2','galaxy-shooter','space-siege','sky-ace','dino-run','idle-island','rail-rush','metro-runner','shadow-ninja','monster-survivors','chick-hop','island-tycoon']},{id:'simulation',t:'Simulation',ic:'buildings',sub:'Cities, planes and busy kitchens',list:['city-builder','island-tycoon','idle-island','airplane-pilot','sky-ace','bus-sim','parking-pro','farm-merge','cooking-madness','burger-shop','cat-cafe','drive-master','kingdom-builder','goblin-camp','car-racer-x','city-drift','ocean-merge','merge-animals']},{id:'casual',t:'Casual',ic:'smiley',sub:'Cute, calm and easy to pick up',list:['merge-animals','melody-match','jelly-pop','pink-paws','neko-merge','cat-cafe','fruit-merge','fruit-merge-dash','ocean-merge','save-doge','gumball-sort','word-quest','blob-party','hide-seek','burger-shop','cooking-madness','penguin-dash','bubble-pop']},{id:'multiplayer',t:'Multiplayer',ic:'users-three',sub:'Play with friends and rivals',list:['stickman-battle','stick-duel','soccer-cup','pool-master','car-arena','knight-duel','robo-rumble','drift-riders','stumble-rush','heroes-arena','archery','word-master','eight-ball','goal-kick','basketball-stars','mech-wars','drift-kings','ninja-clash']}];
