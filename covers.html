@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Zabava covers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Lilita+One&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF4FC;--text:#1C2B58;--text-2:#6B7A99;--card:rgba(255,255,255,.7);--border:rgba(31,46,92,.09);--accent:#3D86F2}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#05080F;--text:#F5F8FC;--text-2:#8296AD;--card:rgba(255,255,255,.045);--border:rgba(255,255,255,.08);--accent:#5E9EFA}}
+:root[data-theme="dark"]{--bg:#05080F;--text:#F5F8FC;--text-2:#8296AD;--card:rgba(255,255,255,.045);--border:rgba(255,255,255,.08);--accent:#5E9EFA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Nunito,system-ui,sans-serif;padding:28px 24px 60px}
+.wrap{max-width:1320px;margin:0 auto}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:26px}
+h1{margin:0;font-size:30px;font-weight:800;letter-spacing:-.02em}
+header p{margin:4px 0 0;color:var(--text-2);font-weight:600}
+button{font:inherit;font-weight:700;height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer}
+section{margin-top:30px;padding:20px;border-radius:24px;border:1px solid var(--border);background:var(--card)}
+.sh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.sh b{font-size:22px;font-weight:800}
+.sh .tag{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:12px;background:var(--accent);color:#fff;font-weight:800;align-self:center}
+.sh span{color:var(--text-2);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:14px}
+.wide{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:14px}
+figure{margin:0}
+figure svg{display:block;width:100%;height:auto;border-radius:18px;box-shadow:0 3px 10px -4px rgba(0,0,0,.35)}
+figcaption{margin-top:6px;font-size:13px;font-weight:700;color:var(--text-2)}
+@media (max-width:1000px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.wide{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){body{padding:18px 16px 40px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.wide{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div><h1>Обложки — три направления</h1><p>Одни и те же 8 сюжетов в трёх стилях. Выберите стиль — переделаю в нём все 92 обложки.</p></div>
+    <button id="theme" type="button">Сменить тему</button>
+  </header>
+  <div id="out"></div>
+</div>
+<script>
+/* ---------- colour + seeded random ---------- */
+const rgb=h=>{const n=parseInt(h.slice(1),16);return[n>>16&255,n>>8&255,n&255];};
+const mix=(a,b,k)=>{const A=rgb(a),B=rgb(b);return'#'+A.map((v,i)=>Math.round(v+(B[i]-v)*k).toString(16).padStart(2,'0')).join('');};
+const L=(h,k)=>mix(h,'#ffffff',k),D=(h,k)=>mix(h,'#000000',k);
+const rng=s=>()=>{s=s+0x6D2B79F5|0;let q=Math.imul(s^s>>>15,1|s);q=q+Math.imul(q^q>>>7,61|q)^q;return((q^q>>>14)>>>0)/4294967296;};
+const INK='#1B1433';
+let UID=0;
+
+/* ---------- a painter: the same drawing, rendered in one of three styles ---------- */
+function painter(style,W,H,seed){
+  const id='p'+(UID++),defs=[],r=rng(seed);let n=0;const u=()=>id+'_'+(n++);
+  const lin=(a,b,x2=0,y2=1)=>{const k=u();defs.push(`<linearGradient id="${k}" x1="0" y1="0" x2="${x2}" y2="${y2}"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`);return`url(#${k})`;};
+  const rad=(st,cx=.5,cy=.5,rr=.5)=>{const k=u();defs.push(`<radialGradient id="${k}" cx="${cx}" cy="${cy}" r="${rr}">${st.map(([c,o,a])=>`<stop offset="${o}" stop-color="${c}" stop-opacity="${a??1}"/>`).join('')}</radialGradient>`);return`url(#${k})`;};
+  const blur=id+'_blur',glowF=id+'_glow';
+  defs.push(`<filter id="${blur}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>`);
+  defs.push(`<filter id="${glowF}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`);
+  const P={style,W,H,r,defs,lin,rad};
+  /* fill for a shape */
+  P.f=(col,o={})=>{
+    if(style==='A')return`fill="${o.flat?col:lin(L(col,.3),D(col,.28))}"`;
+    if(style==='B')return`fill="${col}" stroke="${INK}" stroke-width="${o.sw??3.4}" stroke-linejoin="round" stroke-linecap="round"`;
+    return`fill="${mix(col,'#0B0620',.72)}" stroke="${L(col,.15)}" stroke-width="${o.sw??2.4}" stroke-linejoin="round" filter="url(#${glowF})"`;
+  };
+  P.s=(tag,attrs,col,o)=>`<${tag} ${attrs} ${P.f(col,o)}/>`;
+  P.path=(d,col,o)=>P.s('path',`d="${d}"`,col,o);
+  P.circ=(x,y,rr,col,o)=>P.s('circle',`cx="${x}" cy="${y}" r="${rr}"`,col,o);
+  P.ell=(x,y,rx,ry,col,o)=>P.s('ellipse',`cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"`,col,o);
+  P.rect=(x,y,w,h,rx,col,o)=>P.s('rect',`x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}"`,col,o);
+  /* shine on a volume */
+  P.hl=(x,y,rx,ry,rot=-25)=>style==='A'?`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="#fff" opacity=".55" transform="rotate(${rot} ${x} ${y})" filter="url(#${blur})"/><ellipse cx="${x}" cy="${y}" rx="${rx*.55}" ry="${ry*.45}" fill="#fff" opacity=".7" transform="rotate(${rot} ${x} ${y})"/>`
+    :style==='B'?`<ellipse cx="${x}" cy="${y}" rx="${rx*.7}" ry="${ry*.45}" fill="#fff" opacity=".9" transform="rotate(${rot} ${x} ${y})"/>`:'';
+  P.shadow=(x,y,rx)=>style==='A'?`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${rx*.2}" fill="#000" opacity=".32" filter="url(#${blur})"/>`
+    :style==='B'?`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${rx*.17}" fill="${INK}" opacity=".22"/>`:`<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${rx*.14}" fill="#fff" opacity=".12" filter="url(#${blur})"/>`;
+  P.glow=(x,y,rr,col,op=.7)=>`<circle cx="${x}" cy="${y}" r="${rr}" fill="${rad([[col,0,op],[col,1,0]])}"/>`;
+  /* background: sky colours of the scene, restyled */
+  P.bg=(c1,c2,o={})=>{
+    let s='';
+    if(style==='A'){
+      s+=`<rect width="${W}" height="${H}" fill="${lin(c1,c2)}"/>`+P.glow(W*(o.lx??.5),H*(o.ly??.3),Math.max(W,H)*.7,'#fff',.35);
+      for(let i=0;i<9;i++)s+=`<circle cx="${r()*W}" cy="${r()*H*.8}" r="${4+r()*12}" fill="#fff" opacity="${.08+r()*.14}" filter="url(#${blur})"/>`;
+    }else if(style==='B'){
+      s+=`<rect width="${W}" height="${H}" fill="${c2}"/>`;const cx=W*(o.lx??.5),cy=H*(o.ly??.45),R=Math.hypot(W,H);let d='';
+      for(let i=0;i<18;i++){const a0=i/18*Math.PI*2,a1=a0+Math.PI/18;d+=`M${cx} ${cy}L${cx+R*Math.cos(a0)} ${cy+R*Math.sin(a0)}L${cx+R*Math.cos(a1)} ${cy+R*Math.sin(a1)}Z`;}
+      s+=`<path d="${d}" fill="${c1}" opacity=".55"/>`;
+      let dots='';for(let y=6;y<H;y+=9)for(let x=6+(y/9%2)*4.5;x<W;x+=9){const k=(x/W+ (H-y)/H)/2;if(k<.42)dots+=`<circle cx="${x}" cy="${y}" r="${(.42-k)*6}"/>`;}
+      s+=`<g fill="#fff" opacity=".35">${dots}</g>`;
+    }else{
+      const top=mix(c1,'#0B0620',.82),bot=mix(c2,'#2A0B5A',.6);
+      s+=`<rect width="${W}" height="${H}" fill="${lin(top,bot)}"/>`;
+      for(let i=0;i<22;i++)s+=`<circle cx="${r()*W}" cy="${r()*H*.7}" r="${.5+r()*1.2}" fill="#fff" opacity="${.3+r()*.6}"/>`;
+      const hz=H*(o.hz??.74);let g='';for(let x=-W;x<W*2;x+=W/8)g+=`M${W/2+(x-W/2)*.25} ${hz}L${x} ${H}`;for(let y=hz,k=4;y<H;k*=1.45,y+=k)g+=`M0 ${y}H${W}`;
+      s+=`<path d="${g}" stroke="${L(c1,.2)}" stroke-width="1" opacity=".45" fill="none"/>`+P.glow(W/2,hz,W*.6,L(c1,.1),.45);
+    }
+    return s;
+  };
+  /* sparkles */
+  P.fx=(pts,col='#fff')=>pts.map(([x,y,s])=>{const d=`M${x} ${y-s}Q${x} ${y} ${x+s} ${y}Q${x} ${y} ${x} ${y+s}Q${x} ${y} ${x-s} ${y}Q${x} ${y} ${x} ${y-s}Z`;
+    return style==='A'?P.glow(x,y,s*2.2,col,.6)+`<path d="${d}" fill="${col}"/>`:style==='B'?`<path d="${d}" fill="${col}" stroke="${INK}" stroke-width="1.6" stroke-linejoin="round"/>`:`<path d="${d}" fill="${col}" filter="url(#${glowF})"/>`;}).join('');
+  P.eyes=(x,y,s,gap)=>[-1,1].map(k=>`<ellipse cx="${x+k*gap}" cy="${y}" rx="${s*.7}" ry="${s}" fill="${style==='C'?'#fff':INK}"/><circle cx="${x+k*gap-s*.2}" cy="${y-s*.35}" r="${s*.32}" fill="${style==='C'?INK:'#fff'}"/>`).join('');
+  P.svg=body=>`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img"><defs>${defs.join('')}</defs>${body}</svg>`;
+  return P;
+}
+
+/* ---------- 8 subjects, drawn on a 200×200 stage (dx shifts them in wide frames) ---------- */
+const SUBJECTS=[
+ {t:'Pirate Cove',bg:['#35B8FF','#C9F0FF'],o:{ly:.25},draw(P,x0){const X=v=>v+x0;let s='';
+   s+=P.glow(X(150),38,40,'#FFF4C2',.9)+P.circ(X(150),38,14,'#FFE066');
+   s+=P.path(`M${X(-40)} 140 Q${X(20)} 128 ${X(60)} 140 T${X(140)} 140 T${X(220)} 140 T${X(300)} 140 V200 H${X(-40)} Z`,'#1E88E5',{flat:1});
+   s+=P.shadow(X(100),160,62);
+   s+=P.rect(X(97),42,6,92,2,'#6B3A1A');
+   s+=P.path(`M${X(104)} 40 L${X(128)} 47 L${X(104)} 54 Z`,'#FF3B4E');
+   s+=P.path(`M${X(58)} 60 Q${X(100)} 50 ${X(142)} 60 L${X(138)} 112 Q${X(100)} 102 ${X(62)} 112 Z`,'#FFF3DA');
+   s+=P.circ(X(100),80,11,'#2A2440')+`<circle cx="${X(96)}" cy="${79}" r="2.6" fill="#fff"/><circle cx="${X(104)}" cy="79" r="2.6" fill="#fff"/><path d="M${X(90)} 95 L${X(110)} 101 M${X(110)} 95 L${X(90)} 101" stroke="#2A2440" stroke-width="3.2" stroke-linecap="round"/>`;
+   s+=P.path(`M${X(34)} 122 L${X(166)} 122 L${X(150)} 156 Q${X(100)} 164 ${X(50)} 156 Z`,'#9A5226');
+   s+=P.rect(X(44),130,112,6,3,'#FFCE2E');
+   s+=[62,82,118,138].map(x=>P.circ(X(x),145,4,'#3A2412')).join('');
+   s+=P.hl(X(70),128,20,4,0);
+   s+=P.path(`M${X(-40)} 158 Q${X(0)} 148 ${X(40)} 158 T${X(120)} 158 T${X(200)} 158 T${X(280)} 158 V200 H${X(-40)} Z`,'#4FC3FF',{flat:1});
+   s+=`<path d="M${X(24)} 34 q6 -6 12 0 q6 -6 12 0 M${X(52)} 22 q5 -5 10 0 q5 -5 10 0" fill="none" stroke="${P.style==='C'?'#fff':INK}" stroke-width="2.4" stroke-linecap="round"/>`;
+   return s+P.fx([[X(28),70,5],[X(172),90,4]]);}},
+ {t:'Star Rocket',bg:['#2B1A6B','#7B4DFF'],o:{ly:.4},draw(P,x0){const X=v=>v+x0;let s='';
+   s+=P.circ(X(26),176,58,'#FF8A3D')+P.hl(X(10),140,22,10,-30)+P.path(`M${X(-44)} 176 Q${X(26)} 150 ${X(96)} 176`,'#FFD166',{sw:3,flat:1}).replace(/fill="[^"]*"/,'fill="none"');
+   s+=P.circ(X(166),40,15,'#4DD2FF')+P.hl(X(161),34,6,3);
+   s+=P.fx([[X(40),30,4],[X(140),120,3],[X(176),150,5],[X(70),60,3]]);
+   let rk='';
+   rk+=P.path(`M${X(100)} 150 Q${X(88)} 176 ${X(100)} 196 Q${X(112)} 176 ${X(100)} 150 Z`,'#FFB224');
+   rk+=P.path(`M${X(100)} 150 Q${X(94)} 166 ${X(100)} 180 Q${X(106)} 166 ${X(100)} 150 Z`,'#FFF3B0');
+   rk+=P.path(`M${X(80)} 118 L${X(62)} 150 L${X(84)} 144 Z`,'#FF4D5E')+P.path(`M${X(120)} 118 L${X(138)} 150 L${X(116)} 144 Z`,'#FF4D5E');
+   rk+=P.path(`M${X(100)} 28 C${X(126)} 52 ${X(128)} 110 ${X(118)} 148 L${X(82)} 148 C${X(72)} 110 ${X(74)} 52 ${X(100)} 28 Z`,'#EEF2FF');
+   rk+=P.path(`M${X(100)} 28 C${X(112)} 39 ${X(119)} 52 ${X(122)} 64 L${X(78)} 64 C${X(81)} 52 ${X(88)} 39 ${X(100)} 28 Z`,'#FF4D5E');
+   rk+=P.circ(X(100),92,15,'#9AA6C8')+P.circ(X(100),92,10,'#4DD2FF')+P.hl(X(96),87,4,2.4);
+   rk+=P.hl(X(88),110,4,18,0);
+   return s+`<g transform="rotate(28 ${X(100)} 110)">${rk}</g>`;}},
+ {t:'Potion Lab',bg:['#5B2BD9','#C27BFF'],o:{ly:.55},draw(P,x0){const X=v=>v+x0;let s='';
+   s+=P.rect(X(-40),160,280,40,0,'#6B3A1A');
+   s+=P.shadow(X(100),162,50);
+   s+=P.path(`M${X(40)} 160 V110 Q${X(40)} 96 ${X(50)} 96 H${X(56)} Q${X(66)} 96 ${X(66)} 110 V160 Z`,'#FF5DA2')+P.rect(X(46),84,14,14,3,'#B9773F');
+   s+=P.circ(X(156),140,20,'#4DD2FF')+P.rect(X(150),108,12,14,3,'#B9773F');
+   s+=P.rect(X(88),52,24,34,6,'#CFF7EA')+P.rect(X(84),42,32,14,5,'#B9773F');
+   s+=P.glow(X(100),122,70,'#7CF0C8',.55);
+   s+=P.circ(X(100),122,42,'#3EE6A8')+P.path(`M${X(58)} 122 Q${X(100)} 108 ${X(142)} 122 A42 42 0 0 1 ${X(58)} 122 Z`,'#0FB97A',{flat:1});
+   s+=P.hl(X(84),104,12,6);
+   s+=[[92,132,4],[108,116,3],[100,142,2.6]].map(([x,y,r])=>`<circle cx="${X(x)}" cy="${y}" r="${r}" fill="#fff" opacity=".8"/>`).join('');
+   s+=[[96,40,6],[110,24,4.5],[92,12,3.5]].map(([x,y,r])=>P.circ(X(x),y,r,'#9DF7D6')).join('');
+   return s+P.fx([[X(30),40,6],[X(168),60,5],[X(150),20,3.5],[X(22),96,3.5]],'#FFE680');}},
+ {t:'Burger Rush',bg:['#FF6A3D','#FFC23D'],o:{ly:.45},draw(P,x0){const X=v=>v+x0;let s='';
+   s+=P.shadow(X(100),170,64);
+   s+=P.path(`M${X(44)} 146 H${X(156)} Q${X(156)} 166 ${X(136)} 166 H${X(64)} Q${X(44)} 166 ${X(44)} 146 Z`,'#E89A45');
+   s+=P.rect(X(40),124,120,22,11,'#6B3A1A');
+   s+=P.path(`M${X(40)} 122 H${X(160)} L${X(152)} 132 L${X(144)} 124 L${X(132)} 138 L${X(120)} 124 L${X(100)} 134 L${X(84)} 124 L${X(70)} 136 L${X(58)} 124 L${X(48)} 132 Z`,'#FFCE2E');
+   s+=P.ell(X(70),116,18,6,'#FF4D5E')+P.ell(X(128),116,18,6,'#FF4D5E');
+   s+=P.path(`M${X(36)} 112 Q${X(46)} 102 ${X(56)} 112 T${X(76)} 112 T${X(96)} 112 T${X(116)} 112 T${X(136)} 112 T${X(156)} 112 T${X(166)} 110 L${X(160)} 118 H${X(40)} Z`,'#5DD35D');
+   s+=P.path(`M${X(42)} 106 Q${X(42)} 52 ${X(100)} 52 Q${X(158)} 52 ${X(158)} 106 Z`,'#F2A94A');
+   s+=P.hl(X(78),68,20,8);
+   s+=[[70,80],[90,70],[112,74],[132,86],[100,92],[80,96],[120,98]].map(([x,y])=>`<ellipse cx="${X(x)}" cy="${y}" rx="3.4" ry="1.8" fill="#FFF6E0" transform="rotate(-20 ${X(x)} ${y})"/>`).join('');
+   s+=`<g transform="rotate(-24 ${X(26)} 50)">${P.rect(X(20),30,10,40,3,'#FFD23F')}</g><g transform="rotate(18 ${X(176)} 60)">${P.rect(X(170),40,10,40,3,'#FFD23F')}</g>`;
+   s+=P.circ(X(170),140,11,'#FF4D5E')+P.circ(X(24),130,8,'#5DD35D');
+   return s+P.fx([[X(46),26,5],[X(150),26,6]]);}},
+ {t:'Dino Valley',bg:['#46C9FF','#DDF7C8'],o:{ly:.2},draw(P,x0){const X=v=>v+x0;let s='';
+   s+=P.path(`M${X(118)} 118 L${X(150)} 44 L${X(166)} 44 L${X(200)} 118 Z`,'#8A5A44')+P.path(`M${X(150)} 44 L${X(166)} 44 L${X(160)} 60 L${X(154)} 54 Z`,'#FF6A3D');
+   s+=P.glow(X(158),36,26,'#FF9A3D',.8);
+   s+=P.path(`M${X(-40)} 150 Q${X(40)} 110 ${X(110)} 140 T${X(260)} 132 V200 H${X(-40)} Z`,'#5CCB5C',{flat:1});
+   s+=P.shadow(X(100),176,58);
+   s+=P.path(`M${X(58)} 140 Q${X(20)} 150 ${X(8)} 128 Q${X(34)} 136 ${X(60)} 122 Z`,'#3FC77A');
+   s+=[[70,104],[84,96],[100,94]].map(([x,y])=>P.path(`M${X(x-7)} ${y+6} L${X(x)} ${y-8} L${X(x+7)} ${y+6} Z`,'#FF9A3D',{sw:2.6})).join('');
+   s+=P.rect(X(66),150,16,26,7,'#34B36A')+P.rect(X(108),150,16,26,7,'#34B36A');
+   s+=P.ell(X(92),138,42,34,'#3FC77A')+P.ell(X(96),146,24,20,'#C6F2B0',{flat:1});
+   s+=P.circ(X(128),92,30,'#3FC77A')+P.hl(X(116),78,10,5);
+   s+=P.eyes(X(132),88,4.4,9)+`<path d="M${X(122)} 106 Q${X(134)} 114 ${X(146)} 104" fill="none" stroke="${P.style==='C'?'#fff':INK}" stroke-width="2.6" stroke-linecap="round"/>`;
+   s+=P.ell(X(34),170,14,18,'#FFF1DE')+`<circle cx="${X(30)}" cy="164" r="3" fill="#FF9A3D"/><circle cx="${X(38)}" cy="176" r="2.4" fill="#FF9A3D"/>`;
+   return s+P.fx([[X(30),40,5],[X(90),30,4]]);}},
+ {t:'Turbo Drift',bg:['#FF3B6B','#FFB23D'],o:{ly:.52,hz:.55},draw(P,x0){const X=v=>v+x0;let s='';
+   s+=P.glow(X(100),104,60,'#FFF4C2',.9)+P.circ(X(100),104,22,'#FFE066',{flat:1});
+   let city='';let x=-60;const rr=rng(7);while(x<260){const w=14+rr()*18,h=16+rr()*36;city+=`M${X(x)} 110 V${110-h} H${X(x+w)} V110 Z`;x+=w+2;}
+   s+=P.path(city,'#7A2A6B',{flat:1,sw:2});
+   s+=P.path(`M${X(-60)} 110 H${X(260)} V200 H${X(-60)} Z`,'#3A2F55',{flat:1,sw:0});
+   s+=P.path(`M${X(84)} 110 L${X(116)} 110 L${X(230)} 200 L${X(-30)} 200 Z`,'#51476E',{flat:1,sw:2});
+   s+=`<path d="M${X(100)} 114 V124 M${X(100)} 134 V150 M${X(100)} 164 V196" stroke="#FFE066" stroke-width="4" stroke-linecap="round"/>`;
+   s+=P.shadow(X(100),178,64);
+   s+=P.rect(X(46),160,20,20,5,'#1B1433')+P.rect(X(134),160,20,20,5,'#1B1433');
+   s+=P.path(`M${X(62)} 128 L${X(74)} 104 H${X(126)} L${X(138)} 128 Z`,'#1557E0');
+   s+=P.path(`M${X(70)} 126 L${X(79)} 108 H${X(121)} L${X(130)} 126 Z`,'#7FD4FF');
+   s+=P.rect(X(40),124,120,44,14,'#1E6BFF')+P.hl(X(70),132,22,4,0);
+   s+=P.circ(X(58),146,9,'#FFE066')+P.circ(X(142),146,9,'#FFE066');
+   s+=P.rect(X(80),148,40,10,4,'#12235A');
+   s+=[[14,120,40],[170,128,34],[6,150,30],[176,158,28]].map(([x,y,l])=>`<path d="M${X(x)} ${y} h${l>30?-l:l}" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".75"/>`).join('');
+   return s;}},
+ {t:'Reef Friends',bg:['#0A6FD9','#3FD6FF'],o:{ly:.05},draw(P,x0){const X=v=>v+x0;let s='';
+   for(let i=0;i<4;i++)s+=`<path d="M${X(20+i*50)} 0 H${X(38+i*50)} L${X(70+i*50)} 200 H${X(46+i*50)} Z" fill="#fff" opacity=".08"/>`;
+   s+=P.path(`M${X(-40)} 176 Q${X(60)} 160 ${X(240)} 178 V200 H${X(-40)} Z`,'#FFD9A0',{flat:1});
+   s+=P.path(`M${X(20)} 180 C${X(10)} 150 ${X(26)} 140 ${X(24)} 120 C${X(34)} 130 ${X(36)} 146 ${X(40)} 150 C${X(44)} 132 ${X(52)} 128 ${X(56)} 136 C${X(52)} 150 ${X(48)} 166 ${X(52)} 180 Z`,'#FF5DA2');
+   s+=P.path(`M${X(146)} 182 C${X(150)} 160 ${X(140)} 150 ${X(148)} 132 C${X(156)} 146 ${X(160)} 150 ${X(164)} 140 C${X(172)} 150 ${X(170)} 166 ${X(176)} 182 Z`,'#FF9A3D');
+   s+=P.path(`M${X(52)} 96 L${X(26)} 76 L${X(30)} 116 Z`,'#FF7A1A');
+   s+=P.ell(X(98),96,46,30,'#FF7A1A');
+   s+=P.path(`M${X(74)} 70 Q${X(84)} 96 ${X(74)} 122 Q${X(62)} 96 ${X(74)} 70 Z`,'#FFFFFF',{sw:2.6})+P.path(`M${X(108)} 66 Q${X(120)} 96 ${X(108)} 126 Q${X(96)} 96 ${X(108)} 66 Z`,'#FFFFFF',{sw:2.6});
+   s+=P.path(`M${X(92)} 66 Q${X(100)} 50 ${X(114)} 58 L${X(110)} 70 Z`,'#FF7A1A',{sw:2.6});
+   s+=P.hl(X(88),80,16,5,-10);
+   s+=P.eyes(X(128),90,4.4,0)+`<path d="M${X(130)} 106 q6 4 12 -2" fill="none" stroke="${P.style==='C'?'#fff':INK}" stroke-width="2.4" stroke-linecap="round"/>`;
+   s+=[[160,60,7],[172,36,5],[150,20,4],[40,40,5]].map(([x,y,r])=>`<circle cx="${X(x)}" cy="${y}" r="${r}" fill="#fff" fill-opacity=".25" stroke="#fff" stroke-width="1.8"/>`).join('');
+   return s;}},
+ {t:'Gold Rush',bg:['#FF8A3D','#FFE08A'],o:{ly:.5},draw(P,x0){const X=v=>v+x0;let s='';
+   s+=P.glow(X(100),100,90,'#FFF4B0',.95);
+   s+=P.shadow(X(100),176,66);
+   s+=P.path(`M${X(52)} 110 L${X(60)} 58 Q${X(100)} 40 ${X(140)} 58 L${X(148)} 110 Z`,'#6E3514');
+   s+=P.path(`M${X(58)} 66 Q${X(100)} 50 ${X(142)} 66`,'#FFCE2E',{sw:4}).replace(/fill="[^"]*"/,'fill="none"');
+   s+=[[64,110],[82,100],[100,106],[118,98],[136,108],[74,118],[126,118],[92,94],[108,92]].map(([x,y])=>P.ell(X(x),y,11,5,'#FFD23F',{sw:2.4})).join('');
+   s+=P.path(`M${X(92)} 86 L${X(100)} 74 L${X(108)} 86 L${X(100)} 98 Z`,'#FF3B6B',{sw:2.4})+P.path(`M${X(118)} 90 L${X(124)} 80 L${X(130)} 90 L${X(124)} 100 Z`,'#4DD2FF',{sw:2.4});
+   s+=P.rect(X(46),112,108,58,8,'#9A5226');
+   s+=P.rect(X(46),126,108,8,2,'#FFCE2E')+P.rect(X(58),112,10,58,2,'#FFCE2E')+P.rect(X(132),112,10,58,2,'#FFCE2E');
+   s+=P.rect(X(90),130,20,22,5,'#FFE066')+`<circle cx="${X(100)}" cy="140" r="3" fill="${INK}"/>`;
+   s+=P.hl(X(78),118,16,3,0);
+   s+=[[30,160,10],[168,166,9],[176,146,7],[22,140,7]].map(([x,y,r])=>P.circ(X(x),y,r,'#FFD23F',{sw:2.4})).join('');
+   return s+P.fx([[X(40),50,7],[X(166),42,6],[X(150),84,4],[X(30),96,4]]);}}
+];
+
+const STYLES=[
+  {k:'A',name:'Объём и свет',sub:'Мягкие градиенты на каждой форме, блики, размытые тени и боке на фоне — как 3D-мультфильм.'},
+  {k:'B',name:'Яркий стикер',sub:'Плоские сочные цвета, толстый тёмный контур, лучи и полутон на фоне — как наклейки и комиксы.'},
+  {k:'C',name:'Неон',sub:'Тёмная сцена, светящиеся контуры и сетка горизонта — аркадный вечерний стиль.'}
+];
+
+function render(style,sub,W,H,dx,seed){const P=painter(style,W,H,seed);return P.svg(P.bg(...sub.bg,sub.o)+sub.draw(P,dx));}
+let html='';
+STYLES.forEach(st=>{
+  html+=`<section><div class="sh"><span class="tag">${st.k}</span><b>${st.name}</b><span>${st.sub}</span></div><div class="grid">`;
+  SUBJECTS.forEach((sub,i)=>{html+=`<figure>${render(st.k,sub,200,200,0,i*97+3)}<figcaption>${sub.t}</figcaption></figure>`;});
+  html+=`</div><div class="wide">`;
+  [0,3,5,6].forEach(i=>{html+=`<figure>${render(st.k,SUBJECTS[i],340,200,70,i*131+5)}<figcaption>${SUBJECTS[i].t} — широкая</figcaption></figure>`;});
+  html+=`</div></section>`;
+});
+document.getElementById('out').innerHTML=html;
+document.getElementById('theme').onclick=()=>{const r=document.documentElement,dark=r.dataset.theme?r.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;r.dataset.theme=dark?'light':'dark';};
+</script>
+</body>
+</html>
