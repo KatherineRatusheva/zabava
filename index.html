@@ -1448,9 +1448,12 @@ function renderSections(cc,wc,fc){
 /* rail: sliding active pill */
 const panel=$('.side-list'),pill=document.createElement('span');pill.className='rail-pill';pill.setAttribute('aria-hidden','true');panel.prepend(pill);
 function movePill(){const a=panel.querySelector('[aria-current="page"]');if(a)pill.style.transform=`translate(${a.offsetLeft}px,${a.offsetTop}px)`;}
-/* after picking an item the menu folds away and stays folded until the pointer leaves it */
+/* after picking an item the menu folds away and stays folded until the pointer is clear of the open panel
+   (past its full width, or out of the window) — leaving just the narrow rail is not enough to re-arm it */
 const side=$('.side');
-side.addEventListener('pointerleave',()=>side.classList.remove('is-closing'));
+const openW=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--side-open'))||212;
+addEventListener('pointermove',e=>{if(side.classList.contains('is-closing')&&e.clientX>openW()+8)side.classList.remove('is-closing');},{passive:true});
+document.documentElement.addEventListener('pointerleave',()=>side.classList.remove('is-closing'));
 side.addEventListener('focusout',e=>{if(!side.contains(e.relatedTarget)&&!side.matches(':hover'))side.classList.remove('is-closing');});
 panel.addEventListener('click',e=>{const a=e.target.closest('.rail-btn');if(!a)return;if(e.detail)a.blur();side.classList.add('is-closing');panel.querySelectorAll('.rail-btn').forEach(x=>x.removeAttribute('aria-current'));a.setAttribute('aria-current','page');movePill();
 });
